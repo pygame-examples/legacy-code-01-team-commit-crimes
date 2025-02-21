@@ -19,12 +19,11 @@ class GamePlay:
         self.score: int
         self.score_text: Txt_item = Txt_item("Score:", (100, 30))
 
-        self.background = pygame.Surface(settings.screensize)
+        self.background: pygame.Surface = pygame.Surface(settings.screensize)
         self.background.fill(pygame.Color("black"))
-        # pygame.draw.rect(self.background, pygame.Color("orange"), (10, 380, 200, 90))
-        # pygame.draw.rect(self.background, pygame.Color("orange"), (220, 380, 200, 90))
-        # pygame.draw.rect(self.background, pygame.Color("orange"), (430, 380, 200, 90))
-        # draw_text(self.background, (440, 380), "Status")
+        pygame.draw.rect(
+            self.background, pygame.Color("red"), settings.ctrlrect, width=1
+        )
 
         bs = settings.blocksize
         edge = settings.edge
