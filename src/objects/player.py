@@ -16,11 +16,21 @@ class Player:
         self.cpos: pygame.Vector2 = pygame.Vector2(self.graphic.size) / 2
 
         NDArrayInt = npt.NDArray[np.int_]
+        # self.grid: NDArrayInt = np.array(
+        #     [[0, 1, 1, 0], [1, 1, 1, 1], [1, 1, 1, 1], [0, 1, 1, 0]]
+        # )
         self.grid: NDArrayInt = np.array(
-            [[0, 1, 1, 0], [1, 1, 1, 1], [1, 1, 1, 1], [0, 1, 1, 0]]
+            [
+                [0, 1, 1, 1, 0],
+                [1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1],
+                [0, 1, 1, 1, 0],
+            ]
         )
-        self.gx: int = 0
-        self.gy: int = 0
+        sb = settings.blocksize
+        self.gx: int = int(self.pos[0] / sb - self.grid.shape[0] / 2 + 0.5)
+        self.gy: int = int(self.pos[1] / sb - self.grid.shape[1] / 2 + 0.5)
         self.mouse_pos: pygame.Vector2 = pygame.Vector2(0, 1)
 
     def new_pos_xy(self, x, y):
@@ -51,14 +61,10 @@ class Player:
             self.graphic = pygame.transform.rotate(self.inp_graphic, self.angle)
             self.cpos = pygame.Vector2(self.graphic.size) / 2
 
-            if self.mouse_pos != self.pos:
-                if self.pos.distance_to(self.mouse_pos) < 2.0:  # may need adjstment
-                    dxy = pygame.Vector2(0, 0)
-                else:
-                    dxy = (self.mouse_pos - self.pos).normalize()
-            else:
+            if self.pos.distance_to(self.mouse_pos) < 2.0:  # may need adjstment
                 dxy = pygame.Vector2(0, 0)
-                return
+            else:
+                dxy = (self.mouse_pos - self.pos).normalize()
 
             # Constrain player position
             # -------------------------------------------------------------
@@ -81,7 +87,9 @@ class Player:
             collision = np.any(grid_portion * self.grid)
 
             if collision:
-                self.pos -= (sb // 2) * dxy
+                self.pos = (
+                    pygame.Vector2(self.gx + sgs[0] / 2, self.gy + sgs[1] / 2) * sb
+                )
             else:
                 self.pos += dxy
                 self.gx = trygx
@@ -95,14 +103,19 @@ class Player:
         window.blit(self.graphic, (*drawxy, *self.graphic.size))
 
         # to debug player position
+        sb = settings.blocksize
         for y in range(self.grid.shape[0]):
             for x in range(self.grid.shape[1]):
                 if self.grid[y, x]:
                     r = pygame.Rect(
-                        (self.gx + x) * settings.blocksize,
-                        (self.gy + y) * settings.blocksize,
-                        settings.blocksize - 1,
-                        settings.blocksize - 1,
+                        (self.gx + x) * sb,
+                        (self.gy + y) * sb,
+                        sb,
+                        sb,
                     )
                     pygame.draw.rect(window, pygame.Color("grey50"), r)
         pygame.draw.circle(window, pygame.Color("red"), self.pos, 2)
+        if self.mode == "button_down":
+            if self.mouse_pos != self.pos:
+                mouth = self.pos + 3 * sb * (self.mouse_pos - self.pos).normalize()
+                pygame.draw.circle(window, pygame.Color("green"), mouth, 2)
