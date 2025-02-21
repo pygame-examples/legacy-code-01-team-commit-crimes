@@ -10,8 +10,8 @@ screensize: pygame.math.Vector2
 screensize = pygame.Vector2(1024, 768)
 blocksize: int = 16
 edge: int = 6
-pe2 = blocksize
-ctrlrect = pygame.Rect(pe2, pe2, screensize[0] - 2 * pe2, screensize[1] - 2 * pe2)
+bs = blocksize
+ctrlrect = pygame.Rect(bs, bs, screensize[0] - 2 * bs, screensize[1] - 2 * bs)
 
 VERSION: float = 0.1
 COMPATABLE_VERSIONS: list[float] = []

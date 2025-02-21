@@ -16,8 +16,7 @@ class GamePlay:
         startxy = settings.edge * settings.blocksize // 2
         self.player: Player = Player(pygame.Vector2(startxy, startxy))
 
-        self.score: int
-        self.score_text: Txt_item = Txt_item("Score:", (100, 30))
+        self.score_text: Txt_item = Txt_item("Score: 0", (100, 30))
 
         self.background: pygame.Surface = pygame.Surface(settings.screensize)
         self.background.fill(pygame.Color("black"))
@@ -43,6 +42,7 @@ class GamePlay:
 
     def update(self, dt):
         self.player.update(dt)
+        self.score_text.change_text(f"Score:{self.player.score}")
 
     def draw(self, window):
         window.blit(self.background, (0, 0))
@@ -51,8 +51,9 @@ class GamePlay:
         for y in range(self.food.shape[0]):
             for x in range(self.food.shape[1]):
                 if self.food[y, x]:
+                    c = pygame.Color.from_hsva(self.food[y, x] + 60, 100, 100, 0)
                     r = pygame.Rect(x * bs, y * bs, bs - 1, bs - 1)
-                    pygame.draw.rect(self.background, pygame.Color("white"), r)
+                    pygame.draw.rect(window, c, r)
 
         self.score_text.render(window)
 
