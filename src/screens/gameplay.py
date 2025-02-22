@@ -52,7 +52,7 @@ class GamePlay:
             for x in range(self.food.shape[1]):
                 if self.food[y, x]:
                     c = pygame.Color.from_hsva(self.food[y, x] + 60, 100, 100, 0)
-                    r = pygame.Rect(x * bs, y * bs, bs - 1, bs - 1)
+                    r = pygame.Rect(x * bs, y * bs, bs, bs)
                     pygame.draw.rect(window, c, r)
 
         self.score_text.render(window)
