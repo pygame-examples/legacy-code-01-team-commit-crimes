@@ -1,6 +1,7 @@
 import numpy as np
 
 
+# found on some website
 def perlin(M, N):
     linx = np.linspace(0, 5, M, endpoint=False)
     liny = np.linspace(0, 5, N, endpoint=False)
@@ -64,6 +65,28 @@ def get_blocks(M, N, edge):
         return final
 
 
+def get_blocks2(M, N, edge):
+    nx, ny = M + 2 * edge, N + 2 * edge
+    xs, ys = nx - 1, ny - 1
+    x, y = np.meshgrid(
+        np.linspace(0, xs, nx),
+        np.linspace(0, ys, ny),
+    )
+    dlr = np.minimum(x, xs - x)
+    dtb = np.minimum(y, ys - y)
+    dedge = np.minimum(dlr, dtb)
+    if edge > 0:
+        dampen = (dedge * 0.6 / edge) - 1.2
+    else:
+        dampen = dedge * 0.6 - 1.2
+    dampen[dampen > 0] = 0
+
+    blocks = (170 * (perlin(ny, nx) + dampen)).astype(int)
+    blocks[blocks < 0] = 0
+
+    return blocks
+
+
 if __name__ == "__main__":
     import sys
 
@@ -84,6 +107,55 @@ if __name__ == "__main__":
         N = 8
         edge = 2
 
-    map = get_blocks(M, N, edge)
+    # display and playback test code
+    screensize = (1024, 768)
+    bs = 16
+    edge = 6
+    px = int(screensize[0] // bs - edge * 2)
+    py = int(screensize[1] // bs - edge * 2)
+    import pygame
 
-    print(map)
+    map = get_blocks(
+        screensize[0] // bs - edge * 2, screensize[1] // bs - edge * 2, edge
+    )
+
+    pygame.init()
+    window = pygame.display.set_mode(screensize)
+    done = False
+    clock = pygame.time.Clock()
+    while not done:
+        clock.tick(60)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                done = True
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_q:
+                    done = True
+                elif event.key == pygame.K_SPACE:
+                    map = get_blocks(px, py, edge)
+                elif event.key == pygame.K_z:
+                    # map = (perlin(py, px) > 0).astype(int)
+                    map = (100 * perlin(py, px)).astype(int)
+                    map[map < 0] = 0
+                    print(map)
+                elif event.key == pygame.K_t:
+                    map_max = 0
+                    map_min = 0
+                    for i in range(1000):
+                        map = perlin(py, px)
+                        map_max = max(map.max(), map_max)
+                        map_min = min(map.min(), map_min)
+                    print(map_min, map_max)
+                elif event.key == pygame.K_2:
+                    map = get_blocks2(px, py, edge)
+
+        window.fill(pygame.Color("black"))
+        for y in range(map.shape[0]):
+            for x in range(map.shape[1]):
+                if map[y, x]:
+                    c = pygame.Color.from_hsva(map[y, x] + 60, 100, 100, 0)
+                    r = pygame.Rect(x * bs, y * bs, bs - 1, bs - 1)
+                    pygame.draw.rect(window, c, r)
+
+        pygame.display.update()
+    pygame.quit()

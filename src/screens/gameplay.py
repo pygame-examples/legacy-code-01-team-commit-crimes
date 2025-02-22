@@ -2,7 +2,7 @@ import pygame
 import src.engine.settings as settings
 from src.objects.txt_item import Txt_item, draw_text
 from src.objects.player import Player
-from src.engine.make_map import get_blocks
+from src.engine.make_map import get_blocks2
 
 
 class GamePlay:
@@ -28,7 +28,7 @@ class GamePlay:
         edge = settings.edge
         dx = int(settings.screensize[0]) // bs - edge * 2
         dy = int(settings.screensize[1]) // bs - edge * 2
-        self.food = get_blocks(dx, dy, edge)
+        self.food = get_blocks2(dx, dy, edge)
 
     def startup(self):
         pass
