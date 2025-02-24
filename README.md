@@ -1,13 +1,13 @@
 # Unofficial Pygame Community Pass-the-code Game Jam 2025
 There are two teams, each creating a game. Only one person from each team works at the team's project in a given moment. Each participant has as week to work on the project. After that time is up, it's the turn for the next person. Commit to the repository regularly to avoid code loss (in your time frame).
 
-Team one Commit Crimes:
-1) @David Ward Sunday, February 16, 2025 at 4:00 PM-Sunday, February 23, 2025 at 4:00 PM
-2) @Matiiss Sunday, February 23, 2025 at 4:00 PM-Sunday, March 2, 2025 at 4:00 PM
-3) @farkas15 Sunday, March 2, 2025 at 4:00 PM-Sunday, March 9, 2025 at 5:00 PM
-4) @Dusty Sunday, March 9, 2025 at 5:00 PM-Sunday, March 16, 2025 at 5:00 PM
-5) @Axis Sunday, March 16, 2025 at 5:00 PM-Sunday, March 23, 2025 at 5:00 PM
-6) @Dolfino Sunday, March 23, 2025 at 5:00 PM-Sunday, March 30, 2025 at 4:00 PM
+Team one Commit Crimes (times are in UTC):
+1) @David Ward Monday, February 17, 2025 at 12:00 AM - Monday, February 24, 2025 at 12:00 AM
+2) @Matiiss Monday, February 24, 2025 at 12:00 AM - Monday, March 3, 2025 at 12:00 AM
+3) @farkas15 Monday, March 3, 2025 at 12:00 AM - Monday, March 10, 2025 at 12:00 AM
+4) @Dusty Monday, March 10, 2025 at 12:00 AM - Sunday, March 17, 2025 at 12:00 AM
+5) @Axis Monday, March 17, 2025 at 12:00 AM - Monday, March 24, 2025 at 12:00 AM
+6) @Dolfino Monday, March 24, 2025 at 12:00 AM - Monday, March 31, 2025 at 12:00 AM
 
 # Rules
 Rules in use are a modified version of those for https://itch.io/jam/pygame-community-fall-jam-2024
