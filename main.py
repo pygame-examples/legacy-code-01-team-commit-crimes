@@ -1,5 +1,6 @@
-import sys
 import asyncio
+import sys
+
 import pygame
 
 # /// script
@@ -8,11 +9,10 @@ import pygame
 #  "numpy",
 # ]
 # ///
-
 import src.engine.settings as settings
 from src.engine.game import Game
-from src.screens.intro import Intro
 from src.screens.gameplay import GamePlay
+from src.screens.intro import Intro
 
 if __name__ == "__main__":
     if len(sys.argv) > 1 and not settings.isweb:

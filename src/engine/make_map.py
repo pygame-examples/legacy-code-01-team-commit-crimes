@@ -115,9 +115,7 @@ if __name__ == "__main__":
     py = int(screensize[1] // bs - edge * 2)
     import pygame
 
-    map = get_blocks(
-        screensize[0] // bs - edge * 2, screensize[1] // bs - edge * 2, edge
-    )
+    map = get_blocks(screensize[0] // bs - edge * 2, screensize[1] // bs - edge * 2, edge)
 
     pygame.init()
     window = pygame.display.set_mode(screensize)

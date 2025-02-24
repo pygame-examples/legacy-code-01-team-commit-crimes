@@ -1,5 +1,7 @@
 import sys
+
 import pygame
+
 from src.screens.gameplay import GamePlay
 from src.screens.intro import Intro
 

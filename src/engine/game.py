@@ -1,5 +1,7 @@
 import asyncio
+
 import pygame
+
 import src.engine.settings as settings
 
 

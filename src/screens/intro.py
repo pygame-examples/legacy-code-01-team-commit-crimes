@@ -1,4 +1,5 @@
 import pygame
+
 from src.objects.txt_item import Txt_item
 
 
@@ -11,9 +12,7 @@ class Intro:
         self.next_state: str = "GamePlay"
 
         self.game_name: Txt_item = Txt_item("Game", ((100, 150)), fontsize=80)
-        self.start_btn: Txt_item = Txt_item(
-            "Start", ((100, 350)), True, "start", fontsize=40
-        )
+        self.start_btn: Txt_item = Txt_item("Start", ((100, 350)), True, "start", fontsize=40)
 
     def startup(self):
         pass

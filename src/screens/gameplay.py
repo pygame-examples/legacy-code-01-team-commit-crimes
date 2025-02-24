@@ -1,8 +1,9 @@
 import pygame
+
 import src.engine.settings as settings
-from src.objects.txt_item import Txt_item, draw_text
-from src.objects.player import Player
 from src.engine.make_map import get_blocks2
+from src.objects.player import Player
+from src.objects.txt_item import Txt_item
 
 
 class GamePlay:
@@ -20,9 +21,7 @@ class GamePlay:
 
         self.background: pygame.Surface = pygame.Surface(settings.screensize)
         self.background.fill(pygame.Color("black"))
-        pygame.draw.rect(
-            self.background, pygame.Color("red"), settings.ctrlrect, width=1
-        )
+        pygame.draw.rect(self.background, pygame.Color("red"), settings.ctrlrect, width=1)
 
         bs = settings.blocksize
         edge = settings.edge

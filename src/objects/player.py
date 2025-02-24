@@ -1,6 +1,7 @@
-import pygame
 import numpy as np
 import numpy.typing as npt
+import pygame
+
 import src.engine.settings as settings
 
 
@@ -89,9 +90,7 @@ class Player:
 
             # calculate positions based on collisions
             if collision:
-                self.pos = (
-                    pygame.Vector2(self.gx + sgs[0] / 2, self.gy + sgs[1] / 2) * sb
-                )
+                self.pos = pygame.Vector2(self.gx + sgs[0] / 2, self.gy + sgs[1] / 2) * sb
             else:
                 self.pos += dxy
                 self.gx = trygx

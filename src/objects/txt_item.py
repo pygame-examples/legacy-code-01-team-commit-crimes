@@ -1,4 +1,5 @@
 import pygame
+
 import src.engine.settings as settings
 
 
@@ -32,9 +33,7 @@ class Txt_item:
             self.rect = self.text_surface.get_rect(topleft=(self.position))
         elif self.location == "center":
             self.rect = self.text_surface.get_rect(center=(self.position))
-        self.sel_rect = pygame.Rect(
-            self.rect[0] - 4, self.rect[1] - 4, self.rect[2] + 8, self.rect[3] + 4
-        )
+        self.sel_rect = pygame.Rect(self.rect[0] - 4, self.rect[1] - 4, self.rect[2] + 8, self.rect[3] + 4)
 
     def render(self, screen):
         screen.blit(self.text_surface, self.rect)
