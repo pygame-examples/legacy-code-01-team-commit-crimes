@@ -1,10 +1,22 @@
 [project]
 name = "commit-crimes"
 version = "0.1.0"
-description = "Add your description here"
+description = ""
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "numpy>=2.2.3",
     "pygame-ce>=2.5.3",
 ]
+
+[project.optional-dependencies]
+dev = ["ruff"]
+
+[tool.ruff]
+line-length = 110
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "C901"]
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
