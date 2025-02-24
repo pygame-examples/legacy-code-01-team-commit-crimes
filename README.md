@@ -9,7 +9,7 @@ Team one Commit Crimes (times are in UTC):
 5) @Axis Monday, March 17, 2025 at 12:00 AM - Monday, March 24, 2025 at 12:00 AM
 6) @Dolfino Monday, March 24, 2025 at 12:00 AM - Monday, March 31, 2025 at 12:00 AM
 
-# Rules
+## Rules
 Rules in use are a modified version of those for https://itch.io/jam/pygame-community-fall-jam-2024
 
 - Pre-existing engine/utility code can be reused for this jam. However, code specific for this jam must be created after the jam starts.
@@ -24,3 +24,53 @@ Rules in use are a modified version of those for https://itch.io/jam/pygame-comm
 - The winning submission will be determined by a popularity vote determined by a number of stars that a given submission got in the submission channel (reactions by participants don't count).
 - The last member of a team is also tasked with creating a submission on #showcase-submissions within their time-frame (this includes "marketing materials", like showcase videos).
 - You are not allowed to have fun throughout the creation process. Any team caught enjoying the jam will be disqualified! /s
+
+## Development setup
+
+### Package manager
+It is strongly recommended* to use `uv` as the package manager. To install it:
+- On UNIX systems:
+  ```bash
+  curl -LsSf https://astral.sh/uv/install.sh | sh
+  ```
+- On Windows:
+  ```ps
+  powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+  ```
+For a more thorough guide, consult the official documentation: https://docs.astral.sh/uv/getting-started/installation/  
+<sub>* - following instructions will mostly make use of `uv`'s interfaces, though of course one doesn't HAVE to use it</sub>
+
+### Install all dependencies in a virtual environment at the root of the project
+On Windows, you'd likely use `.venv/source` instead of `.venv/bin`
+
+With `uv`:
+```bash
+uv venv .venv
+uv pip install --editable .[dev]
+```
+With `pip`:
+```bash
+python -m venv .venv
+.venv/bin/python -m pip install --editable .[dev]
+```
+
+### Activate your virtual environment
+```bash
+source .venv/bin/activate
+```
+
+### Setting up pre-commit hooks
+```bash
+uvx pre-commit install
+```
+If you make edits or pull in new changes from the remote, it's a good idea to run this just in case
+someone has updated the config.
+
+### Running the game
+Make sure you have activated the virtual environment and simply run this:
+```bash
+python main.py
+```
+
+### Running the game (VS Code)
+You can simply press F5 (or whatever key you have remapped that action to) and it should launch the game
