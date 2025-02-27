@@ -6,7 +6,10 @@
         "**/build": true,
         "**/dist": true,
         "**/coverage": true,
-        "**/__pycache__": true
+        "**/__pycache__": true,
+        "**/.mypy_cache": true,
+        "**/.ruff_cache": true,
+        "**/*.egg-info": true,
     },
 
     "[python]": {
@@ -18,6 +21,7 @@
     },
     
     "python.analysis.diagnosticMode": "workspace",
-    "python.analysis.typeCheckingMode": "standard",
+    // "python.analysis.typeCheckingMode": "standard",
+    "python.analysis.typeCheckingMode": "strict",
     "python.defaultInterpreterPath": ".venv/bin/python"
 }

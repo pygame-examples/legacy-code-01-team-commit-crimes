@@ -2,11 +2,11 @@ import numpy as np
 import numpy.typing as npt
 import pygame
 
-import src.engine.settings as settings
+from ..engine import settings
 
 
 class Player:
-    def __init__(self, pos: pygame.Vector2):
+    def __init__(self, pos: pygame.Vector2) -> None:
         self.pos: pygame.Vector2 = pos
 
         g: pygame.Surface = pygame.image.load("graphics/bug_alpha.png").convert_alpha()
@@ -27,7 +27,7 @@ class Player:
                 [0, 1, 1, 1, 0],
             ]
         )
-        sb = settings.blocksize
+        sb = settings.BLOCK_SIZE
         sgs = self.grid.shape
         self.gx: int = int(self.pos[0] / sb - (sgs[0] - 1) / 2)
         self.gy: int = int(self.pos[1] / sb - (sgs[1] - 1) / 2)
@@ -35,7 +35,7 @@ class Player:
         self.eat = pygame.mixer.Sound("audio/Footstep__009.ogg")
         self.eat.set_volume(1)
 
-    def process_event(self, event):
+    def process_event(self, event: pygame.Event) -> None:
         if self.mode == "waiting":
             if event.type == pygame.MOUSEBUTTONDOWN:
                 self.mouse_pos = pygame.Vector2(event.pos)
@@ -46,7 +46,7 @@ class Player:
             elif event.type == pygame.MOUSEMOTION:
                 self.mouse_pos = pygame.Vector2(event.pos)
 
-    def update(self, dt):
+    def update(self, dt: float) -> None:
         if self.mode == "button_down":
             if not settings.ctrlrect.collidepoint(self.mouse_pos):
                 self.mode = "waiting"
@@ -70,8 +70,8 @@ class Player:
 
             # Constrain player position
             # -------------------------------------------------------------
-            sb = settings.blocksize
-            ss = settings.screensize
+            sb = settings.BLOCK_SIZE
+            ss = settings.LOGICAL_SIZE
             sgs = self.grid.shape
 
             # Limit player position to screen edges - currently not needed
@@ -115,9 +115,9 @@ class Player:
                 self.score += 1
                 self.eat.play()
 
-    def draw(self, window):
+    def render(self, dest: pygame.Surface) -> None:
         drawxy = self.pos - self.cpos
-        window.blit(self.graphic, (*drawxy, *self.graphic.size))
+        dest.blit(self.graphic, (*drawxy, *self.graphic.size))
 
         # to debug player position
         # sb = settings.blocksize
@@ -130,13 +130,13 @@ class Player:
         #                 sb,
         #                 sb,
         #             )
-        #             pygame.draw.rect(window, pygame.Color("grey50"), r)
-        # pygame.draw.circle(window, pygame.Color("red"), self.pos, 2)
+        #             pygame.draw.rect(window, "grey50", r)
+        # pygame.draw.circle(window, "red", self.pos, 2)
         # if self.mode == "button_down":
         #     if self.mouse_pos != self.pos:
         #         mouth = self.pos + 3 * sb * (self.mouse_pos - self.pos).normalize()
         #         mx = int(mouth[0] / sb)
         #         my = int(mouth[1] / sb)
         #         mr = pygame.Rect(sb * mx, sb * my, sb, sb)
-        #         pygame.draw.rect(window, pygame.Color("orange"), mr)
-        #         pygame.draw.circle(window, pygame.Color("green"), mouth, 2)
+        #         pygame.draw.rect(window, "orange", mr)
+        #         pygame.draw.circle(window, "green", mouth, 2)

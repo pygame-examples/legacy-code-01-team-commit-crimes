@@ -1,16 +1,22 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
 [project]
-name = "commit-crimes"
+name = "leaf-eater"
+authors = [{ name = "David Ward" }, { name = "Matiiss" }]
 version = "0.1.0"
 description = ""
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = [
-    "numpy>=2.2.3",
-    "pygame-ce>=2.5.3",
-]
+dependencies = ["numpy>=2.2.3", "pygame-ce>=2.5.3"]
 
 [project.optional-dependencies]
 dev = ["ruff"]
+
+[tool.pylint.main]
+disable = ["all"]
+enable = ["attribute-defined-outside-init"]
 
 [tool.ruff]
 line-length = 110

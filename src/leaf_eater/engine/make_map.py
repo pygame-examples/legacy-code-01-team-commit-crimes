@@ -1,10 +1,12 @@
+from typing import Any
+
 import numpy as np
 
 
 # found on some website
-def perlin(M, N):
-    linx = np.linspace(0, 5, M, endpoint=False)
-    liny = np.linspace(0, 5, N, endpoint=False)
+def perlin(m: int, n: int) -> Any:
+    linx = np.linspace(0, 5, m, endpoint=False)
+    liny = np.linspace(0, 5, n, endpoint=False)
     y, x = np.meshgrid(liny, linx)
     # permutation table
     p = np.arange(256, dtype=int)
@@ -30,25 +32,25 @@ def perlin(M, N):
     return lerp(x1, x2, v)  # FIX2: I also had to reverse x1 and x2 here
 
 
-def lerp(a, b, x):
+def lerp(a: Any, b: Any, t: Any) -> Any:
     """linear interpolation"""
-    return a + x * (b - a)
+    return a + t * (b - a)
 
 
-def fade(t):
+def fade(t: Any) -> Any:
     """6t^5 - 15t^4 + 10t^3"""
     return 6 * t**5 - 15 * t**4 + 10 * t**3
 
 
-def gradient(h, x, y):
+def gradient(h: Any, x: Any, y: Any) -> Any:
     """grad converts h to the right gradient vector and return the dot product with (x,y)"""
     vectors = np.array([[0, 1], [0, -1], [1, 0], [-1, 0]])
     g = vectors[h % 4]
     return g[:, :, 0] * x + g[:, :, 1] * y
 
 
-def get_blocks(M, N, edge):
-    obm = (perlin(N, M) > 0).astype(int)
+def get_blocks(m: int, n: int, edge: int) -> Any:
+    obm = (perlin(n, m) > 0).astype(int)
     binmap = obm + np.vstack((np.zeros(obm.shape[1]), obm[:-1]))
     binmap = binmap + np.vstack((obm[1:], np.zeros(obm.shape[1])))
     binmap = binmap + np.hstack((np.zeros((obm.shape[0], 1)), obm[:, :-1]))
@@ -60,13 +62,13 @@ def get_blocks(M, N, edge):
     if edge == 0:
         return binmap
     else:
-        final = np.zeros((N + 2 * edge, M + 2 * edge))
+        final = np.zeros((n + 2 * edge, m + 2 * edge))
         final[edge:-edge, edge:-edge] = binmap
         return final
 
 
-def get_blocks2(M, N, edge):
-    nx, ny = M + 2 * edge, N + 2 * edge
+def get_blocks2(m: int, n: int, edge: int) -> Any:
+    nx, ny = m + 2 * edge, n + 2 * edge
     xs, ys = nx - 1, ny - 1
     x, y = np.meshgrid(
         np.linspace(0, xs, nx),
@@ -91,20 +93,20 @@ if __name__ == "__main__":
     import sys
 
     if len(sys.argv) > 3:
-        M = int(sys.argv[1])
-        N = int(sys.argv[2])
+        m = int(sys.argv[1])
+        n = int(sys.argv[2])
         edge = int(sys.argv[3])
     elif len(sys.argv) > 2:
-        M = int(sys.argv[1])
-        N = int(sys.argv[2])
+        m = int(sys.argv[1])
+        n = int(sys.argv[2])
         edge = 2
     elif len(sys.argv) > 1:
-        M = int(sys.argv[1])
-        N = M
+        m = int(sys.argv[1])
+        n = m
         edge = 2
     else:
-        M = 6
-        N = 8
+        m = 6
+        n = 8
         edge = 2
 
     # display and playback test code
@@ -120,7 +122,7 @@ if __name__ == "__main__":
     pygame.init()
     window = pygame.display.set_mode(screensize)
     done = False
-    clock = pygame.time.Clock()
+    clock = pygame.Clock()
     while not done:
         clock.tick(60)
         for event in pygame.event.get():
@@ -147,7 +149,7 @@ if __name__ == "__main__":
                 elif event.key == pygame.K_2:
                     map = get_blocks2(px, py, edge)
 
-        window.fill(pygame.Color("black"))
+        window.fill("black")
         for y in range(map.shape[0]):
             for x in range(map.shape[1]):
                 if map[y, x]:
