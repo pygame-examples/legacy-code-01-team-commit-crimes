@@ -1,9 +1,11 @@
 import pygame
 
+from ..engine import events
 from ..objects.ui import Text
+from . import GamePlay, Screen
 
 
-class Intro:
+class Intro(Screen):
     """Intro Screen"""
 
     def __init__(self):
@@ -16,7 +18,7 @@ class Intro:
     def process_event(self, event: pygame.Event) -> None:
         if event.type == pygame.MOUSEBUTTONDOWN:
             if self.start_btn.check_select(event.pos):
-                pass
+                pygame.event.post(pygame.event.Event(events.SET_SCREEN, screen=GamePlay))
 
     def update(self, dt: float) -> None:
         pass

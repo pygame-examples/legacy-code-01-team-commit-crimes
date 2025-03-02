@@ -1,142 +1,56 @@
-import numpy as np
-import numpy.typing as npt
 import pygame
 
-from ..engine import settings
+# from ..engine import settings
 
 
 class Player:
     def __init__(self, pos: pygame.Vector2) -> None:
         self.pos: pygame.Vector2 = pos
 
-        g: pygame.Surface = pygame.image.load("graphics/bug_alpha.png").convert_alpha()
-        self.inp_graphic = pygame.transform.scale(g, (128, 128))
-        self.graphic: pygame.Surface = self.inp_graphic.copy()
-        self.mode: str = "waiting"
+        image: pygame.Surface = pygame.image.load("graphics/bug_alpha.png").convert_alpha()
+        self.base_image = pygame.transform.scale(pygame.transform.rotate(image, -90), (64, 64))
+        self.image = self.base_image.copy()
+
         self.angle: float = 0
-        self.cpos: pygame.Vector2 = pygame.Vector2(self.graphic.size) / 2
         self.score: int = 0
 
-        NDArrayInt = npt.NDArray[np.int_]
-        self.grid: NDArrayInt = np.array(
-            [
-                [0, 1, 1, 1, 0],
-                [1, 1, 1, 1, 1],
-                [1, 1, 1, 1, 1],
-                [1, 1, 1, 1, 1],
-                [0, 1, 1, 1, 0],
-            ]
-        )
-        sb = settings.BLOCK_SIZE
-        sgs = self.grid.shape
-        self.gx: int = int(self.pos[0] / sb - (sgs[0] - 1) / 2)
-        self.gy: int = int(self.pos[1] / sb - (sgs[1] - 1) / 2)
-        self.mouse_pos: pygame.Vector2 = pygame.Vector2(1, 1)
-        self.eat = pygame.mixer.Sound("audio/Footstep__009.ogg")
-        self.eat.set_volume(1)
+        grid = [
+            [0, 1, 1, 0],
+            [1, 1, 1, 1],
+            [1, 1, 1, 1],
+            [0, 1, 1, 0],
+        ]
+        self._mask = pygame.Mask(self.base_image.get_size())
+        x, y = 0, 0
+        for row in grid:
+            for _ in range(self.base_image.get_height() // len(grid)):
+                for cell in row:
+                    for _ in range(self.base_image.get_width() // len(row)):
+                        if cell:
+                            self._mask.set_at((x, y))
+                        x += 1
+                y += 1
+                x = 0
 
-    def process_event(self, event: pygame.Event) -> None:
-        if self.mode == "waiting":
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                self.mouse_pos = pygame.Vector2(event.pos)
-                self.mode = "button_down"
-        elif self.mode == "button_down":
-            if event.type == pygame.MOUSEBUTTONUP:
-                self.mode = "waiting"
-            elif event.type == pygame.MOUSEMOTION:
-                self.mouse_pos = pygame.Vector2(event.pos)
+        self.sfx_eat = pygame.mixer.Sound("audio/Footstep__009.ogg")
+        self.sfx_eat.set_volume(1)
+
+    @property
+    def mask(self) -> pygame.mask.Mask:
+        return self._mask
+
+    @property
+    def collide_rect(self) -> pygame.FRect:
+        return self.base_image.get_frect(center=self.pos)
+
+    @property
+    def render_rect(self) -> pygame.FRect:
+        return self.image.get_frect(center=self.pos)
+
+    def process_event(self, event: pygame.Event) -> None: ...
 
     def update(self, dt: float) -> None:
-        if self.mode == "button_down":
-            if not settings.ctrlrect.collidepoint(self.mouse_pos):
-                self.mode = "waiting"
-                return
-
-            # x,y reversed to accommodate angle_to function
-            v2m = pygame.Vector2(self.mouse_pos[1], self.mouse_pos[0]) - pygame.Vector2(
-                self.pos[1], self.pos[0]
-            )
-            self.angle = 360.0 - v2m.angle_to(pygame.Vector2(-1, 0))
-
-            # rotate graphic, calculate new center location
-            self.graphic = pygame.transform.rotate(self.inp_graphic, self.angle)
-            self.cpos = pygame.Vector2(self.graphic.size) / 2
-
-            # to avoid oscillation when mouse distance to player is small
-            if self.pos.distance_to(self.mouse_pos) < 2.0:  # may need adjustment
-                dxy = pygame.Vector2(0, 0)
-            else:
-                dxy = (dt / 16) * (self.mouse_pos - self.pos).normalize()
-
-            # Constrain player position
-            # -------------------------------------------------------------
-            sb = settings.BLOCK_SIZE
-            ss = settings.LOGICAL_SIZE
-            sgs = self.grid.shape
-
-            # Limit player position to screen edges - currently not needed
-            trygx = max(int((dxy[0] + self.pos[0]) / sb - (sgs[0] - 1) / 2), 0)
-            trygx = min(trygx, int(ss[0]) // sb - sgs[0])
-            trygy = max(int((dxy[1] + self.pos[1]) / sb - (sgs[1] - 1) / 2), 0)
-            trygy = min(trygy, int(ss[1]) // sb - sgs[1])
-
-            # calculate collision with food
-            food = settings.STATES["GamePlay"].food
-            grid_portion = food[
-                trygy : trygy + self.grid.shape[1],
-                trygx : trygx + self.grid.shape[0],
-            ]
-            collision = np.any(grid_portion * self.grid)
-
-            # calculate positions based on collisions
-            if collision:
-                self.pos = pygame.Vector2(self.gx + sgs[0] / 2, self.gy + sgs[1] / 2) * sb
-            else:
-                self.pos += dxy
-                self.gx = trygx
-                self.gy = trygy
-
-            # color food close to mouth
-            if self.mouse_pos == self.pos:
-                mouth = self.mouse_pos
-            else:
-                mouth = self.pos + 3 * sb * (self.mouse_pos - self.pos).normalize()
-
-            # Limit to screen
-            mx = min(food.shape[1] - 1, int(mouth[0] / sb))
-            my = min(food.shape[0] - 1, int(mouth[1] / sb))
-
-            # bite food
-            food[my, mx] = int(food[my, mx] > 0) * (1 + food[my, mx])
-
-            # eat food on threshold of 100 bites
-            if food[my, mx] > 100:
-                food[my, mx] = 0
-                self.score += 1
-                self.eat.play()
+        self.image = pygame.transform.rotate(self.base_image, self.angle)
 
     def render(self, dest: pygame.Surface) -> None:
-        drawxy = self.pos - self.cpos
-        dest.blit(self.graphic, (*drawxy, *self.graphic.size))
-
-        # to debug player position
-        # sb = settings.blocksize
-        # for y in range(self.grid.shape[0]):
-        #     for x in range(self.grid.shape[1]):
-        #         if self.grid[y, x]:
-        #             r = pygame.Rect(
-        #                 (self.gx + x) * sb,
-        #                 (self.gy + y) * sb,
-        #                 sb,
-        #                 sb,
-        #             )
-        #             pygame.draw.rect(window, "grey50", r)
-        # pygame.draw.circle(window, "red", self.pos, 2)
-        # if self.mode == "button_down":
-        #     if self.mouse_pos != self.pos:
-        #         mouth = self.pos + 3 * sb * (self.mouse_pos - self.pos).normalize()
-        #         mx = int(mouth[0] / sb)
-        #         my = int(mouth[1] / sb)
-        #         mr = pygame.Rect(sb * mx, sb * my, sb, sb)
-        #         pygame.draw.rect(window, "orange", mr)
-        #         pygame.draw.circle(window, "green", mouth, 2)
+        dest.blit(self.image, self.render_rect)
