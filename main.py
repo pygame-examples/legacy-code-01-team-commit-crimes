@@ -1,8 +1,8 @@
 import asyncio
 import sys
 
-from leaf_eater import Game
-from leaf_eater.engine import settings
+from src.leaf_eater import Game
+from src.leaf_eater.engine import settings
 
 if __name__ == "__main__":
     fullscreen = False
