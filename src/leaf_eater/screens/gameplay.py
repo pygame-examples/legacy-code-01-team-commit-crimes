@@ -58,7 +58,11 @@ class GamePlay(Screen):
                     (),
                     {
                         "__init__": lambda self, x, y: [
-                            setattr(self, "position", pygame.Vector2(x, y)),
+                            setattr(
+                                self,
+                                "position",
+                                pygame.Vector2(x * settings.BLOCK_SIZE, y * settings.BLOCK_SIZE),
+                            ),
                             setattr(
                                 self,
                                 "mask",
