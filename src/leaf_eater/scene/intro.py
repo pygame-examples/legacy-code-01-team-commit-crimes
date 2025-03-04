@@ -34,7 +34,7 @@ class Intro(Scene):
         if self.start_btn.clicked:
             pygame.event.post(pygame.event.Event(events.SET_SCREEN, screen=GamePlay))
 
-        if self.quit_btn.clicked:
+        if self.quit_btn.clicked or Button.keys((s.CONTROLS["Esc"],))[0]:
             pygame.event.post(pygame.event.Event(pygame.QUIT))
 
     def render(self) -> None:

@@ -2,6 +2,7 @@ import pygame
 
 from ..engine import settings
 from ..farkas_tools.multi_sprite_renderer_hardware import MultiSprite as Msr
+from ..farkas_tools.buttons import Button
 
 
 class Player:
@@ -49,7 +50,15 @@ class Player:
     def process_event(self, event: pygame.Event) -> None: ...
 
     def update(self, dt):
-        pass
+        mouse_pos = Button.mousepos[1]
+        m_left, _, _ = Button.mouse[1]
+
+        vec_towards_mouse = mouse_pos - self.pos
+        vec_towards_mouse_normalized = vec_towards_mouse and vec_towards_mouse.normalize()
+
+        if vec_towards_mouse.length() > 5.0 and m_left:  # I love hardcoded random values
+            self.angle = vec_towards_mouse.angle_to(pygame.Vector2(1, 0))
+            self.pos += vec_towards_mouse_normalized * self.speed * dt
 
     def render(self) -> None:
         self.image_msr.draw(0, scale=(1, 1), pos=self.pos, relativeOffset=(0, 0), rotation=self.angle)
