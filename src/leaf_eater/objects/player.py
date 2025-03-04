@@ -6,8 +6,9 @@ from ..farkas_tools.buttons import Button
 
 
 class Player:
-    def __init__(self, pos: pygame.Vector2) -> None:
+    def __init__(self, pos: pygame.Vector2, game) -> None:
         self.pos: pygame.Vector2 = pos
+        self.game = game
 
         image: pygame.Surface = pygame.image.load("assets/bug_alpha.png").convert_alpha()
         self.base_image = pygame.transform.scale(pygame.transform.rotate(image, -90), (64, 64))
@@ -59,6 +60,8 @@ class Player:
         if vec_towards_mouse.length() > 5.0 and m_left:  # I love hardcoded random values
             self.angle = vec_towards_mouse.angle_to(pygame.Vector2(1, 0))
             self.pos += vec_towards_mouse_normalized * self.speed * dt
+
+        self.game.handle_player_collisions()
 
     def render(self) -> None:
         self.image_msr.draw(0, scale=(1, 1), pos=self.pos, relativeOffset=(0, 0), rotation=self.angle)

@@ -30,7 +30,7 @@ class GamePlay(Scene):
     redirects: dict[str, type(Scene)] = {}  # "circular imports"
 
     def __init__(self):
-        self.player: Player = Player(pygame.Vector2(10, 10))
+        self.player: Player = Player(pygame.Vector2(10, 10), self)
         self.white_font = Msr(folders=(s.ASSETSPATH,), font="MonospaceTypewriter", size=20)
 
         bs = s.BLOCK_SIZE
@@ -39,6 +39,7 @@ class GamePlay(Scene):
         dy = s.LOGICAL_SIZE_RECT.h // bs - edge * 2
         maparray = get_blocks2(int(dx), int(dy), edge)
         self.map: dict[tuple[int, int], Cell] = dict()
+        self.map_size = pygame.Vector2(maparray.shape)
         for y, row in enumerate(maparray):
             for x, value in enumerate(row):
                 if value == 0:
@@ -54,7 +55,14 @@ class GamePlay(Scene):
     def update(self, dt: float) -> None:
 
         self.player.update(dt)
-        self.handle_player_collisions()
+
+        if Button.mouse[1][0]:
+            pos = Button.mousepos[1]
+            self.add_cell_to_map(*(pos//s.BLOCK_SIZE), 10)
+
+        if Button.mouse[1][2]:
+            pos = Button.mousepos[1]
+            self.remove_cell_from_map(*(pos//s.BLOCK_SIZE))
 
         if Button.keys((s.CONTROLS["Esc"],))[0]:
             pygame.event.post(pygame.event.Event(events.SET_SCREEN, screen=self.redirects["intro"]))
@@ -72,6 +80,21 @@ class GamePlay(Scene):
         self.player.render()
 
         self.white_font.write(f"Score: {self.player.score}", pos=(100, 30))
+
+    def add_cell_to_map(self, x, y, value):
+        cell = self.map.setdefault((x, y), Cell(x, y, value))
+        if cell.value < value:
+            cell.value = value
+
+    def remove_cell_from_map(self, x, y):
+        self.map.pop((x, y), None)
+
+    def change_map_cell(self, x, y, value):
+        cell = self.map.setdefault((x, y), None)
+        if cell:
+            cell.value += value
+            if cell.value <= 0:
+                self.remove_cell_from_map(x, y)
 
     def get_colliding_cells(self, rect: Rect):
         cell_size = s.BLOCK_SIZE
