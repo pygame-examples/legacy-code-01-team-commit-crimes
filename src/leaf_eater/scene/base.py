@@ -1,7 +1,7 @@
 import pygame
 
 
-class Screen:
+class Scene:
     """Base Screen class"""
 
     def startup(self):
@@ -13,5 +13,5 @@ class Screen:
     def update(self, dt: float) -> None:
         pass
 
-    def render(self, dest: pygame.Surface) -> None:
+    def render(self) -> None:
         pass

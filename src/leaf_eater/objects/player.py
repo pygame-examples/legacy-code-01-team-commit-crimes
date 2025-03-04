@@ -1,18 +1,20 @@
 import pygame
 
-# from ..engine import settings
+from ..engine import settings
+from ..farkas_tools.multi_sprite_renderer_hardware import MultiSprite as Msr
 
 
 class Player:
     def __init__(self, pos: pygame.Vector2) -> None:
         self.pos: pygame.Vector2 = pos
 
-        image: pygame.Surface = pygame.image.load("graphics/bug_alpha.png").convert_alpha()
+        image: pygame.Surface = pygame.image.load("assets/bug_alpha.png").convert_alpha()
         self.base_image = pygame.transform.scale(pygame.transform.rotate(image, -90), (64, 64))
-        self.image = self.base_image.copy()
+        self.image_msr = Msr(images=(self.base_image,))
 
         self.angle: float = 0
         self.score: int = 0
+        self.speed = 150
 
         grid = [
             [0, 1, 1, 0],
@@ -43,14 +45,11 @@ class Player:
     def collide_rect(self) -> pygame.FRect:
         return self.base_image.get_frect(center=self.pos)
 
-    @property
-    def render_rect(self) -> pygame.FRect:
-        return self.image.get_frect(center=self.pos)
 
     def process_event(self, event: pygame.Event) -> None: ...
 
-    def update(self, dt: float) -> None:
-        self.image = pygame.transform.rotate(self.base_image, self.angle)
+    def update(self, dt):
+        pass
 
-    def render(self, dest: pygame.Surface) -> None:
-        dest.blit(self.image, self.render_rect)
+    def render(self) -> None:
+        self.image_msr.draw(0, scale=(1, 1), pos=self.pos, relativeOffset=(0, 0), rotation=self.angle)
