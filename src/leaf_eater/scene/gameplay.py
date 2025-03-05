@@ -2,6 +2,7 @@ import heapq
 import math
 from collections import defaultdict
 from typing import Protocol, runtime_checkable
+import random
 
 import pygame
 from ..farkas_tools.multi_sprite_renderer_hardware import MultiSprite as Msr
@@ -10,7 +11,7 @@ from ..farkas_tools.buttons import Button
 
 from ..engine import events, settings as s
 from ..engine.make_map import get_blocks2
-from ..objects.player import Player
+from ..objects.player import Player, Projectile
 from ..objects.ui import Text
 from . import Scene
 
@@ -19,10 +20,15 @@ Rect = pygame.Rect | pygame.FRect
 
 class Cell:
     def __init__(self, x, y, value):
-        self.position = pygame.Vector2(x * s.BLOCK_SIZE, y * s.BLOCK_SIZE)
+        self.pos = pygame.Vector2(x * s.BLOCK_SIZE, y * s.BLOCK_SIZE)
         self.mask = pygame.Mask((s.BLOCK_SIZE, s.BLOCK_SIZE), fill=True)
-        self.rect = pygame.Rect(self.position, (s.BLOCK_SIZE, s.BLOCK_SIZE))
+        self.rect = pygame.Rect(self.pos, (s.BLOCK_SIZE, s.BLOCK_SIZE))
         self.value = value
+
+    def draw(self):
+        c = pygame.Color.from_hsva(pygame.math.clamp(self.value, 0, 299) + 60, 100, 100, 0)
+        s.RENDERER.draw_color = c
+        s.RENDERER.fill_rect(self.rect)
 
 
 class GamePlay(Scene):
@@ -30,8 +36,12 @@ class GamePlay(Scene):
     redirects: dict[str, type(Scene)] = {}  # "circular imports"
 
     def __init__(self):
+        self.dt = 0
         self.player: Player = Player(pygame.Vector2(10, 10), self)
+        Projectile.image_msr(folders=(s.ASSETSPATH,), names=("projectile",))
         self.white_font = Msr(folders=(s.ASSETSPATH,), font="MonospaceTypewriter", size=20)
+
+        self.grow_timer = 1
 
         bs = s.BLOCK_SIZE
         edge = s.EDGE
@@ -53,50 +63,65 @@ class GamePlay(Scene):
         self.player.process_event(event)
 
     def update(self, dt: float) -> None:
+        self.dt = dt
+
+        self.grow_map()
 
         self.player.update(dt)
 
-        if Button.mouse[1][0]:
-            pos = Button.mousepos[1]
-            self.add_cell_to_map(*(pos//s.BLOCK_SIZE), 10)
-
-        if Button.mouse[1][2]:
-            pos = Button.mousepos[1]
-            self.remove_cell_from_map(*(pos//s.BLOCK_SIZE))
+        self.player.projectiles.update(dt)
 
         if Button.keys((s.CONTROLS["Esc"],))[0]:
             pygame.event.post(pygame.event.Event(events.SET_SCREEN, screen=self.redirects["intro"]))
 
     def render(self) -> None:
+        for cell in self.map.values():
+            cell.draw()
 
-        bs = s.BLOCK_SIZE
-        for xy, cell in self.map.items():
-            x, y = xy
-            c = pygame.Color.from_hsva(cell.value + 60, 100, 100, 0)
-            r = pygame.Rect(x * bs, y * bs, bs, bs)
-            s.RENDERER.draw_color = c
-            s.RENDERER.fill_rect(r)
-
-        self.player.render()
+        self.player.draw()
+        self.player.projectiles.update("draw")
 
         self.white_font.write(f"Score: {self.player.score}", pos=(100, 30))
 
     def add_cell_to_map(self, x, y, value):
-        cell = self.map.setdefault((x, y), Cell(x, y, value))
-        if cell.value < value:
-            cell.value = value
+        if 0 <= x < self.map_size.x and 0 <= y < self.map_size.y:
+            cell = self.map.setdefault((x, y), Cell(x, y, value))
+            if cell.value < value:
+                cell.value = value
 
     def remove_cell_from_map(self, x, y):
-        self.map.pop((x, y), None)
+        cell = self.map.pop((x, y), None)
+        if cell:
+            self.player.score += cell.value
 
     def change_map_cell(self, x, y, value):
         cell = self.map.setdefault((x, y), None)
         if cell:
-            cell.value += value
-            if cell.value <= 0:
+            if cell.value <= -value:
                 self.remove_cell_from_map(x, y)
+            else:
+                cell.value += value
+                if value < 0:
+                    self.player.score -= value
 
-    def get_colliding_cells(self, rect: Rect):
+    def grow_map(self):
+
+        def grow():
+            if self.map:
+                origin = random.choice(tuple(self.map.values())).pos.copy() // s.BLOCK_SIZE
+                direction = random.choice(((0, 1), (1, 0), (0, -1), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)))
+                while tuple(origin) in self.map:
+                    origin += direction
+                self.add_cell_to_map(*origin, 100)
+
+        self.grow_timer -= self.dt
+        if self.grow_timer <= 0:
+            self.grow_timer += 0.01
+
+            grow()
+
+    @staticmethod
+    def get_colliding_cells(rect: Rect):
         cell_size = s.BLOCK_SIZE
         min_x = int(rect.x // cell_size)
         min_y = int(rect.y // cell_size)
@@ -115,7 +140,7 @@ class GamePlay(Scene):
     def mask_collides_at_grid_pos(self, rect: Rect, mask: pygame.Mask, grid_pos: tuple[int, int]) -> bool:
         if grid_pos not in self.map:
             return False
-        return bool(self.map[grid_pos].mask.overlap(mask, rect.topleft - self.map[grid_pos].position))
+        return bool(self.map[grid_pos].mask.overlap(mask, rect.topleft - self.map[grid_pos].pos))
 
     def rect_collides_any(self, rect: Rect) -> bool:
         for grid_pos in self.get_colliding_cells(rect):
