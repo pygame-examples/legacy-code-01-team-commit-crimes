@@ -11,7 +11,7 @@ class Player:
         self.pos: pygame.Vector2 = pos
         self.game = game
 
-        image: pygame.Surface = pygame.image.load("assets/bug_alpha.png").convert_alpha()
+        image: pygame.Surface = pygame.image.load("assets/bug_alpha.png")
         self.base_image = pygame.transform.scale(pygame.transform.rotate(image, -90), (64, 64))
         self.image_msr = Msr(images=(self.base_image,))
 

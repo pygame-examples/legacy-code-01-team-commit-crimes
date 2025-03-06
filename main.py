@@ -1,3 +1,9 @@
+# /// script
+# dependencies = [
+#  "numpy"
+# ]
+# ///
+
 import asyncio
 import sys
 

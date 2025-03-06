@@ -2,11 +2,9 @@ import asyncio
 from typing import Any
 
 import pygame
-import pygame._sdl2 as pg_sdl2
 from pygame._sdl2.video import Window, Renderer, Texture
 from ..farkas_tools.multi_sprite_renderer_hardware import MultiSprite as Msr
 from ..farkas_tools.buttons import Button
-
 
 from ..scene import GamePlay, Scene, Intro
 from . import events, settings as s
@@ -17,37 +15,24 @@ class Game:
 
     def __init__(self, *, fullscreen: bool = False):
         pygame.init()
-        self.window: pygame.Window = pygame.Window(
+        self.window: Window = Window(
             title="Leaf Eater",
             size=s.WINDOW_SIZE,
             fullscreen=fullscreen,
-            # TODO: if you set this to True, make sure to constrain the mouse position
-            # to the renderer's viewport
             resizable=True,
         )
         self.window.minimum_size = s.WINDOW_SIZE//2
         s.WINDOW = self.window
 
-        self.renderer = pg_sdl2.Renderer(self.window, target_texture=False)
+        self.renderer = Renderer(self.window, target_texture=False)
         s.RENDERER = self.renderer
 
         self.screen = Texture(self.renderer, s.LOGICAL_SIZE_RECT.size, target=True)
         Msr.setScreen(self.renderer)
 
-        original_pygame_mouse_get_pos = pygame.mouse.get_pos
         Button.controls = s.CONTROLS
 
         GamePlay.redirects["intro"] = Intro
-
-
-        def pygame_mouse_get_pos(*args: Any, **kwargs: Any) -> Any:
-            m_x, m_y = original_pygame_mouse_get_pos(*args, **kwargs)
-            r_s_x, r_s_y = self.renderer.scale
-            return m_x / r_s_x, m_y / r_s_y
-
-        pygame.mouse.get_pos = pygame_mouse_get_pos
-
-        self.window.get_surface()
 
         self.clock: pygame.Clock = pygame.Clock()
 
