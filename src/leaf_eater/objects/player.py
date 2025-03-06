@@ -69,9 +69,9 @@ class Player:
 
         self.shoot_timer -= dt
         if self.shoot_timer <= 0:
-            self.shoot_timer += 0.2
+            self.shoot_timer += 0.1
 
-            self.projectiles.add(Projectile(self.game, self.pos, 1000, 600, 20))
+            self.projectiles.add(Projectile(self.game, self.pos, 1000, 600, 20, 0.5))
 
     def draw(self) -> None:
         self.image_msr.draw(0, scale=(1, 1), pos=self.pos, relativeOffset=(0, 0), rotation=self.angle)
@@ -79,13 +79,14 @@ class Player:
 
 class Projectile(sprite.Sprite):
     image_msr = Msr()
-    def __init__(self,game, pos, damage, speed, punchthrough):
+    def __init__(self,game, pos, damage, speed, punchthrough, lifetime):
         super().__init__()
         self.game = game
         self.pos = pos.copy()
         self.damage = damage
         self.speed = speed
         self.punchthrough = punchthrough
+        self.lifetime = lifetime
 
         self.scale = 2
 
@@ -107,6 +108,10 @@ class Projectile(sprite.Sprite):
         self.rects = Projectile.image_msr.rects(0, scale=(self.scale, self.scale), pos=self.pos, relativeOffset=(0, 0), rotation=self.rotation)
 
         self.hit()
+
+        self.lifetime -= dt
+        if self.lifetime <= 0:
+            self.kill()
 
     def hit(self):
         for grid_pos in self.game.get_colliding_cells(self.rects[0]):

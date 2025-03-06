@@ -42,6 +42,7 @@ class GamePlay(Scene):
         self.white_font = Msr(folders=(s.ASSETSPATH,), font="MonospaceTypewriter", size=20)
 
         self.grow_timer = 1
+        self.grow_seeds = [(-1, -1) for _ in range(4)]
 
         bs = s.BLOCK_SIZE
         edge = s.EDGE
@@ -108,17 +109,28 @@ class GamePlay(Scene):
 
         def grow():
             if self.map:
-                origin = random.choice(tuple(self.map.values())).pos.copy() // s.BLOCK_SIZE
+                seed = random.randrange(len(self.grow_seeds))
+                if tuple(self.grow_seeds[seed]) in self.map:
+                    origin = self.grow_seeds[seed]
+                else:
+                    origin = random.choice(tuple(self.map.values())).pos // s.BLOCK_SIZE
+
                 direction = random.choice(((0, 1), (1, 0), (0, -1), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)))
+                value = 0
+                pos = self.grow_seeds[seed]
                 while tuple(origin) in self.map:
+                    cell = self.map[tuple(origin)]
+                    value = max(cell.value + random.randrange(-4, 4), 10)
+                    pos = cell.pos
                     origin += direction
-                self.add_cell_to_map(*origin, 100)
+                self.grow_seeds[seed] = pos // s.BLOCK_SIZE
+                self.add_cell_to_map(*origin, value)
 
         self.grow_timer -= self.dt
-        if self.grow_timer <= 0:
-            self.grow_timer += 0.01
-
-            grow()
+        if self.grow_timer <= 0 and self.map:
+            while self.grow_timer <= 0:
+                self.grow_timer += (len(self.map)/100000)
+                grow()
 
     @staticmethod
     def get_colliding_cells(rect: Rect):

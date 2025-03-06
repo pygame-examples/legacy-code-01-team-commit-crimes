@@ -4,9 +4,9 @@ import numpy as np
 
 
 # found on some website
-def perlin(m: int, n: int) -> Any:
-    linx = np.linspace(0, 5, m, endpoint=False)
-    liny = np.linspace(0, 5, n, endpoint=False)
+def perlin(m: int, n: int, gridsize=5) -> Any:
+    linx = np.linspace(0, gridsize, m, endpoint=False)
+    liny = np.linspace(0, gridsize, n, endpoint=False)
     y, x = np.meshgrid(liny, linx)
     # permutation table
     p = np.arange(256, dtype=int)
@@ -83,7 +83,7 @@ def get_blocks2(m: int, n: int, edge: int) -> Any:
         dampen = dedge * 0.6 - 1.2
     dampen[dampen > 0] = 0
 
-    blocks = (170 * (perlin(ny, nx) + dampen)).astype(int)
+    blocks = (170 * (perlin(ny, nx, 5) + perlin(ny, nx, 10)/2 + dampen)).astype(int)
     blocks[blocks < 0] = 0
 
     return blocks
