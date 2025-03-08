@@ -6,7 +6,7 @@ from pygame._sdl2.video import Window, Renderer, Texture
 from ..farkas_tools.multi_sprite_renderer_hardware import MultiSprite as Msr
 from ..farkas_tools.buttons import Button
 
-from ..scene import GamePlay, Scene, Intro
+from ..scene import GamePlay, Scene, Intro, GameOver
 from . import events, settings as s
 
 
@@ -35,6 +35,8 @@ class Game:
         Button.controls = s.CONTROLS
 
         GamePlay.redirects["intro"] = Intro
+        GamePlay.redirects["over"] = GameOver
+        GameOver.redirects["intro"] = Intro
 
         self.clock: pygame.Clock = pygame.Clock()
 

@@ -21,6 +21,7 @@ class Player:
         self.angle: float = 0
         self.score: int = 0
         self.speed = 150
+        self.health = 100
 
         grid = [
             [0, 1, 1, 0],
@@ -65,7 +66,26 @@ class Player:
             self.angle = vec_towards_mouse.angle_to(pygame.Vector2(1, 0))
             self.pos += vec_towards_mouse_normalized * self.speed * dt
 
-        self.game.handle_player_collisions()
+        else:
+            key = settings.CONTROLS
+            vec = pygame.Vector2(0, 0)
+
+            if Button.keys((key["Up"],))[1]:
+                vec.y += -1
+            if Button.keys((key["Down"],))[1]:
+                vec.y += 1
+            if Button.keys((key["Left"],))[1]:
+                vec.x += -1
+            if Button.keys((key["Right"],))[1]:
+                vec.x += 1
+
+            if vec:
+                vec.normalize_ip()
+                self.angle = vec.angle_to(pygame.Vector2(1, 0))
+                self.pos += vec * self.speed * dt
+
+        hit = self.game.handle_player_collisions()
+        self.health -= bool(hit)*dt*15
 
         self.shoot_timer -= dt
         if self.shoot_timer <= 0:

@@ -75,6 +75,9 @@ class GamePlay(Scene):
         if Button.keys((s.CONTROLS["Esc"],))[0]:
             pygame.event.post(pygame.event.Event(events.SET_SCREEN, screen=self.redirects["intro"]))
 
+        if self.player.health <= 0:
+            pygame.event.post(pygame.event.Event(events.SET_SCREEN, screen=self.redirects["over"]))
+
     def render(self) -> None:
         for cell in self.map.values():
             cell.draw()
@@ -83,6 +86,7 @@ class GamePlay(Scene):
         self.player.projectiles.update("draw")
 
         self.white_font.write(f"Score: {self.player.score}", pos=(100, 30))
+        self.white_font.write(f"Health: {round(self.player.health)}", pos=(200, 30))
 
     def add_cell_to_map(self, x, y, value):
         if 0 <= x < self.map_size.x and 0 <= y < self.map_size.y:
@@ -216,3 +220,5 @@ class GamePlay(Scene):
 
         self.player.pos.x += dx
         self.player.pos.y += dy
+
+        return dx or dy
