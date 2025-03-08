@@ -15,10 +15,12 @@ class Game:
 
     def __init__(self, *, fullscreen: bool = False):
         pygame.init()
+        self.fullscreen = fullscreen
         self.window: Window = Window(
             title="Leaf Eater",
             size=s.WINDOW_SIZE,
-            fullscreen=fullscreen,
+            fullscreen=self.fullscreen,
+            fullscreen_desktop=self.fullscreen,
             resizable=True,
         )
         self.window.minimum_size = s.WINDOW_SIZE//2
@@ -47,6 +49,8 @@ class Game:
 
             if event.type == pygame.QUIT:
                 self.is_running = False
+            elif event.type == pygame.WINDOWRESIZED and not self.fullscreen:
+                s.WINDOW_SIZE.xy = self.window.size
             elif event.type == events.SET_SCREEN:
                 self.state = event.screen()
                 self.state.startup()
@@ -72,6 +76,33 @@ class Game:
         Button.mousepos = self.mousepos
         Button.keyboard = self.keyboard
 
+    def resize_or_fullscreen(self, scale: tuple[int, int] | None = None):
+        if s.IS_WEB:
+            return
+
+        pygame.mouse.set_pos(0, 0)
+
+        if scale is None:
+            self.fullscreen = not self.fullscreen
+
+            if self.fullscreen:
+                self.window.set_fullscreen(True)
+            else:
+                self.window.set_windowed()
+                s.WINDOW_SIZE.xy = self.window.size
+        else:
+            rect = pygame.Rect(*self.window.position, *self.window.size)
+
+            self.window.set_windowed()
+            self.fullscreen = False
+            s.WINDOW_SIZE.xy = scale[0], scale[1]
+            self.window.size = scale
+
+            self.window.position = rect.centerx - self.window.size[0] / 2, rect.centery - self.window.size[1] / 2
+
+        rect = s.LOGICAL_SIZE_RECT.fit(pygame.Rect(0, 0, *self.window.size))
+        pygame.mouse.set_pos(self.mousepos[1].x / s.LOGICAL_SIZE_RECT.w * rect.w + rect.x, self.mousepos[1].y / s.LOGICAL_SIZE_RECT.h * rect.h + rect.y)
+
     async def run(self) -> None:
         self.mousepos = (pygame.Vector2(0, 0), pygame.Vector2(0, 0))
         self.keyboard = (pygame.key.get_pressed(), pygame.key.get_pressed())
@@ -87,6 +118,11 @@ class Game:
             self.renderer.clear()
 
             self.events()
+
+            # toggle full screen with F
+            if Button.keys((pygame.K_f,))[0]:
+                self.resize_or_fullscreen(s.LOGICAL_SIZE_RECT.size if self.fullscreen else None)
+
             self.state.update(dt)
             self.state.render()
 
