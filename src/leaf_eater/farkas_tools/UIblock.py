@@ -1,6 +1,6 @@
 import math
 import pygame
-from multi_sprite_renderer_hardware import MultiSprite as Msr
+from .multi_sprite_renderer_hardware import MultiSprite as Msr
 
 
 def box_slicer(topleft_wh: pygame.Vector2, bottomright_wh: pygame.Vector2, rect: pygame.Rect, scale=(1, 1)):

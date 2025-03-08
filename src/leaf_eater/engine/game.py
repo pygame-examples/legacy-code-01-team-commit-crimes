@@ -1,5 +1,6 @@
 import asyncio
 from typing import Any
+import platform
 
 import pygame
 from pygame._sdl2.video import Window, Renderer, Texture
@@ -79,7 +80,7 @@ class Game:
         Button.keyboard = self.keyboard
 
     def resize_or_fullscreen(self, scale: tuple[int, int] | None = None):
-        if s.IS_WEB:
+        if hasattr(platform, 'window'):
             return
 
         pygame.mouse.set_pos(0, 0)

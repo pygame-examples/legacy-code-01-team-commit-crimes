@@ -85,8 +85,8 @@ class GamePlay(Scene):
         self.player.draw()
         self.player.projectiles.update("draw")
 
+        self.white_font.write(f"Health: {round(self.player.health)}", pos=(100, 10))
         self.white_font.write(f"Score: {self.player.score}", pos=(100, 30))
-        self.white_font.write(f"Health: {round(self.player.health)}", pos=(200, 30))
 
     def add_cell_to_map(self, x, y, value):
         if 0 <= x < self.map_size.x and 0 <= y < self.map_size.y:
@@ -133,7 +133,7 @@ class GamePlay(Scene):
         self.grow_timer -= self.dt
         if self.grow_timer <= 0 and self.map:
             while self.grow_timer <= 0:
-                self.grow_timer += (len(self.map)/100000)
+                self.grow_timer += (len(self.map)/150000)
                 grow()
 
     @staticmethod

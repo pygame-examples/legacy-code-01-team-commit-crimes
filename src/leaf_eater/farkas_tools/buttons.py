@@ -249,6 +249,10 @@ class Button:
 
         return self.rects
 
+    def rects_only(self):
+        self.rects = self.sprites.rects(name=self.name, scale=(self.xm, self.ym), pos=self.pos, relativeOffset=self.offset)
+        return self.rects
+
 
 class Slider(Button):
     @staticmethod

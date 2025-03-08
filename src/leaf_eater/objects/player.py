@@ -89,9 +89,9 @@ class Player:
 
         self.shoot_timer -= dt
         if self.shoot_timer <= 0:
-            self.shoot_timer += 0.1
+            self.shoot_timer += 0.15
 
-            self.projectiles.add(Projectile(self.game, self.pos, 1000, 600, 20, 0.5))
+            self.projectiles.add(Projectile(self.game, self.pos, damage=20, speed=400, punchthrough=20, lifetime=0.7))
 
     def draw(self) -> None:
         self.image_msr.draw(0, scale=(1, 1), pos=self.pos, relativeOffset=(0, 0), rotation=self.angle)
