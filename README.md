@@ -72,5 +72,11 @@ Make sure you have activated the virtual environment and simply run this:
 python main.py
 ```
 
+### Running the game with pygbag
+Make sure you have activated the virtual environment and simply run this:
+```bash
+pygbag main.py
+```
+
 ### Running the game (VS Code)
 You can simply press F5 (or whatever key you have remapped that action to) and it should launch the game

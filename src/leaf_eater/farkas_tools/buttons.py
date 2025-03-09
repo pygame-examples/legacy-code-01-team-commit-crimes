@@ -9,11 +9,14 @@ class Button:
     controls = None
     selectedB = None
 
-    debug = True
+    debug = False
     debugselectedB = None
 
     @staticmethod
     def bridgelink(buttons, horisontal=True):
+        """
+        links together a list of buttons in a row to navigate with keyboard
+        """
         for k, button in enumerate(buttons):
             if horisontal:
                 if k < len(buttons) - 1:
@@ -28,7 +31,9 @@ class Button:
 
     @classmethod
     def keys(cls, keys):
-        # keyboard controls check
+        """
+        check keys. returns if any was [pressed, held, released]
+        """
         pressed = 0
         held = 0
         released = 0
@@ -43,14 +48,12 @@ class Button:
         return pressed, held, released
 
     @classmethod
-    def input(cls, winscale, mousepos, mouse):
-        Button.winscale = winscale
-        Button.mousepos = mousepos
-        Button.mouse = mouse
-
-    @classmethod
     def select(cls, buttons=None, onlymouse=False):
-
+        """
+        selects the only one highlighted key
+        buttons list will be able to be selected with mouse
+        onlymouse disables keyboard navigation
+        """
         if buttons:
             for button in buttons:
                 if button.onit and button is not Button.selectedB and (not Button.selectedB or not Button.selectedB.grabbed):
@@ -73,17 +76,24 @@ class Button:
                 Button.selectedB = s
 
 
-    def __init__(self, sprites, name=0, scale=(1, 1), pos=(0, 0), offset=(0, 0), popup=(1, 1), sound=None):
+    def __init__(self, sprites_msr, name=0, scale=(1, 1), pos=(0, 0), relativeOffset=(0, 0), popup=(1, 1), sound=None):
+        """
+        name = sprite index in order, scale relative, pos = origin point
+        relativeOffset = relative shift from pos works with rotation. (-0.5, -0.5)=topleft, (0, 0)=center
+        popup = relative upscale selected button
+
+        use: clicked, held, released, grabbed, grab_released, sticked, onit, offit, onnow
+        """
         super().__init__()
-        self.sprites = sprites
+        self.sprites = sprites_msr
         self.name = name
         self.scale = scale
         self.pos = pos
-        self.offset = offset
+        self.relativeOffset = relativeOffset
         self.popup = popup
         self.xm = self.scale[0]
         self.ym = self.scale[1]
-        self.rects = self.sprites.rects(name=self.name, scale=(self.xm, self.ym), pos=self.pos, offset=self.offset)
+        self.rects = self.sprites.rects(name=self.name, scale=(self.xm, self.ym), pos=self.pos, relativeOffset=self.relativeOffset)
         self.sound = sound
         self.on = (False, False)
         self.chek = False
@@ -105,6 +115,9 @@ class Button:
         self.onnow = 0
 
     def update(self, mode=None) -> tuple:
+        """
+        modes: None, draw, check
+        """
         match mode:
             case 'draw':
                 return self.draw()
@@ -114,6 +127,9 @@ class Button:
         return self.loop()
 
     def linkto(self, up=0, down=0, left=0, right=0):
+        """
+        links keyboard navigation to other buttons
+        """
         if up != 0:
             self.upto = up
         if down != 0:
@@ -138,7 +154,7 @@ class Button:
         self.offit = 0
         self.onnow = 0
 
-        self.rects = self.sprites.rects(name=self.name, scale=(self.xm, self.ym), pos=self.pos, relativeOffset=self.offset)
+        self.rects = self.sprites.rects(name=self.name, scale=(self.xm, self.ym), pos=self.pos, relativeOffset=self.relativeOffset)
 
         self.on = (self.on[1], pygame.Rect.collidepoint(self.rects[2], mousepos[1]))
 
@@ -149,7 +165,7 @@ class Button:
         else:
             self.xm = self.scale[0]
             self.ym = self.scale[1]
-        self.rects = self.sprites.rects(name=self.name, scale=(self.xm, self.ym), pos=self.pos, relativeOffset=self.offset)
+        self.rects = self.sprites.rects(name=self.name, scale=(self.xm, self.ym), pos=self.pos, relativeOffset=self.relativeOffset)
 
         if (self is Button.selectedB and mouse[1][0] and not mouse[0][0] and self.on[1]) or (self is Button.selectedB and Button.keyboard[1][Button.controls["Ok"]] and not Button.keyboard[0][Button.controls["Ok"]]):
             self.chek = True
@@ -203,6 +219,7 @@ class Button:
             else:
                 Button.debugselectedB = self
 
+        # debug
         if Button.debug and self is Button.debugselectedB:
             self.clicked = False
             if self.grabbed:
@@ -219,38 +236,38 @@ class Button:
             self.scale = (round(self.scale[0], 2), round(self.scale[1], 2))
 
             if Button.keyboard[1][pygame.K_KP7]:
-                self.offset = (-0.5, -0.5)
+                self.relativeOffset = (-0.5, -0.5)
             if Button.keyboard[1][pygame.K_KP8]:
-                self.offset = (0, -0.5)
+                self.relativeOffset = (0, -0.5)
             if Button.keyboard[1][pygame.K_KP9]:
-                self.offset = (0.5, -0.5)
+                self.relativeOffset = (0.5, -0.5)
             if Button.keyboard[1][pygame.K_KP4]:
-                self.offset = (-0.5, 0)
+                self.relativeOffset = (-0.5, 0)
             if Button.keyboard[1][pygame.K_KP5]:
-                self.offset = (0, 0)
+                self.relativeOffset = (0, 0)
             if Button.keyboard[1][pygame.K_KP6]:
-                self.offset = (0.5, 0)
+                self.relativeOffset = (0.5, 0)
             if Button.keyboard[1][pygame.K_KP1]:
-                self.offset = (-0.5, 0.5)
+                self.relativeOffset = (-0.5, 0.5)
             if Button.keyboard[1][pygame.K_KP2]:
-                self.offset = (0, 0.5)
+                self.relativeOffset = (0, 0.5)
             if Button.keyboard[1][pygame.K_KP3]:
-                self.offset = (0.5, 0.5)
+                self.relativeOffset = (0.5, 0.5)
 
             if Button.keyboard[1][pygame.K_o] and not Button.keyboard[0][pygame.K_o]:
-                print(self.pos, self.scale, self.offset)
+                print(self.pos, self.scale, self.relativeOffset)
 
         return self.rects
 
     def draw(self, rects=1):
         if rects:
-            self.rects = self.sprites.rects(name=self.name, scale=(self.xm, self.ym), pos=self.pos, relativeOffset=self.offset)
+            self.rects = self.sprites.rects(name=self.name, scale=(self.xm, self.ym), pos=self.pos, relativeOffset=self.relativeOffset)
         self.sprites.draw_only(name=self.name, rects=self.rects, scale=(self.xm, self.ym), alpha=0.5 if Button.debug and self is Button.debugselectedB else 1)
 
         return self.rects
 
     def rects_only(self):
-        self.rects = self.sprites.rects(name=self.name, scale=(self.xm, self.ym), pos=self.pos, relativeOffset=self.offset)
+        self.rects = self.sprites.rects(name=self.name, scale=(self.xm, self.ym), pos=self.pos, relativeOffset=self.relativeOffset)
         return self.rects
 
 

@@ -24,6 +24,13 @@ def box_slicer(topleft_wh: pygame.Vector2, bottomright_wh: pygame.Vector2, rect:
 
 class UIblock:
     def __init__(self, msr, topleft_wh, bottomright_wh, name=0, include_border=True, wh=(100, 100), scale=(1, 1), pos=(0, 0), relativeOffset=(-0.5, -0.5), alpha=1):
+        """
+        topleft_wh defines the top and left border's width and height
+        bottomright_wh defines the bottom and right border's width and height
+        wh=rect size
+        include_border = border's size will be or not included in the wh rect size
+        scale scales the borders size
+        """
         self.msr = msr
         self.include_border = include_border
         self._topleft_wh = pygame.Vector2(topleft_wh)
@@ -74,6 +81,9 @@ class UIblock:
 
 
     def draw(self, rect=None):
+        """
+        if rect is given it will be used as destination
+        """
         if rect is None:
 
             rect = pygame.Rect(0, 0, self.width, self.height)

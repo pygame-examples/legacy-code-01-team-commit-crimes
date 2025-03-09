@@ -30,11 +30,12 @@ class Game:
         self.renderer = Renderer(self.window, target_texture=False)
         s.RENDERER = self.renderer
 
-        self.screen = Texture(self.renderer, s.LOGICAL_SIZE_RECT.size, target=True)
+        self.screen = Texture(self.renderer, s.LOGICAL_SIZE_RECT.size, target=True)  # game screen
         Msr.setScreen(self.renderer)
 
         Button.controls = s.CONTROLS
 
+        # circular imports get around
         GamePlay.redirects["intro"] = Intro
         GamePlay.redirects["over"] = GameOver
         GameOver.redirects["intro"] = Intro
@@ -43,8 +44,8 @@ class Game:
 
         self.is_running: bool = True
         self.state: Scene = Intro()
+        # self.state: Screen = GamePlay()
         self.state.startup()
-        #self.state: Screen = GamePlay()
 
     def events(self):
         for event in pygame.event.get():
@@ -58,6 +59,7 @@ class Game:
                 self.state = event.screen()
                 self.state.startup()
 
+        #                (previous frame, current frame)
         self.keyboard = (self.keyboard[1], pygame.key.get_pressed())
         self.mouse = [self.mouse[1], pygame.mouse.get_pressed()]
 
@@ -80,6 +82,11 @@ class Game:
         Button.keyboard = self.keyboard
 
     def resize_or_fullscreen(self, scale: tuple[int, int] | None = None):
+        """
+        None scale toggles between fullscreen and last non fulscreen size
+        int, int sets window size
+        """
+
         if hasattr(platform, 'window'):
             return
 
@@ -115,10 +122,10 @@ class Game:
         while self.is_running:
             dt = self.clock.tick(s.FPS) * 1e-3
 
-            self.renderer.draw_color = (0, 10, 0, 0)
-            self.renderer.target = self.screen
+            self.renderer.draw_color = (0, 10, 0, 0)  # background color
+            self.renderer.target = self.screen  # drawing on screen
             Msr.screenrect = s.LOGICAL_SIZE_RECT
-            self.renderer.clear()
+            self.renderer.clear()  # fills background
 
             self.events()
 
@@ -129,12 +136,12 @@ class Game:
             self.state.update(dt)
             self.state.render()
 
-            self.renderer.target = None
+            self.renderer.target = None  # drawing on window
             Msr.screenrect = self.renderer.get_viewport()
-            self.renderer.draw_color = (0, 0, 0, 0)
+            self.renderer.draw_color = (0, 0, 0, 0)  # border color
             self.renderer.clear()
 
-            self.screen.draw(dstrect=s.LOGICAL_SIZE_RECT.fit(pygame.Rect(0, 0, *self.window.size)))
+            self.screen.draw(dstrect=s.LOGICAL_SIZE_RECT.fit(pygame.Rect(0, 0, *self.window.size)))  # draws screen onto window
             self.renderer.present()
 
             await asyncio.sleep(0)

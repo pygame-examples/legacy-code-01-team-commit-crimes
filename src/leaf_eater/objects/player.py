@@ -9,7 +9,7 @@ from ..farkas_tools.buttons import Button
 class Player:
     def __init__(self, pos: pygame.Vector2, game) -> None:
         self.pos: pygame.Vector2 = pos
-        self.game = game
+        self.game = game  # Gameplay scene
 
         image: pygame.Surface = pygame.image.load("assets/bug_alpha.png")
         self.base_image = pygame.transform.scale(pygame.transform.rotate(image, -90), (64, 64))
@@ -23,7 +23,7 @@ class Player:
         self.speed = 150
         self.health = 100
 
-        grid = [
+        grid = [  # hitbox shape
             [0, 1, 1, 0],
             [1, 1, 1, 1],
             [1, 1, 1, 1],
@@ -59,14 +59,14 @@ class Player:
         mouse_pos = Button.mousepos[1]
         m_left, _, _ = Button.mouse[1]
 
+        # mouse control
         vec_towards_mouse = mouse_pos - self.pos
         vec_towards_mouse_normalized = vec_towards_mouse and vec_towards_mouse.normalize()
-
-        if vec_towards_mouse.length() > 5.0 and m_left:  # I love hardcoded random values
+        if vec_towards_mouse.length() > 5.0 and m_left:
             self.angle = vec_towards_mouse.angle_to(pygame.Vector2(1, 0))
             self.pos += vec_towards_mouse_normalized * self.speed * dt
 
-        else:
+        else:  # keyboard control
             key = settings.CONTROLS
             vec = pygame.Vector2(0, 0)
 
@@ -134,6 +134,7 @@ class Projectile(sprite.Sprite):
             self.kill()
 
     def hit(self):
+        # damages Cell grid
         for grid_pos in self.game.get_colliding_cells(self.rects[0]):
             if grid_pos not in self.game.map:
                 continue
@@ -145,9 +146,7 @@ class Projectile(sprite.Sprite):
         if self.punchthrough <= 0:
             self.kill()
 
-
     def draw(self):
         rendered = Projectile.image_msr.draw_only(0, self.rects)
         if not rendered:
             self.kill()
-

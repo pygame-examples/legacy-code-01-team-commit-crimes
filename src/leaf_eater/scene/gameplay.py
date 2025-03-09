@@ -1,7 +1,7 @@
 import heapq
 import math
-from collections import defaultdict
-from typing import Protocol, runtime_checkable
+# from collections import defaultdict
+# typing import Protocol, runtime_checkable
 import random
 
 import pygame
@@ -12,7 +12,7 @@ from ..farkas_tools.buttons import Button
 from ..engine import events, settings as s
 from ..engine.make_map import get_blocks2
 from ..objects.player import Player, Projectile
-from ..objects.ui import Text
+# from ..objects.ui import Text
 from . import Scene
 
 Rect = pygame.Rect | pygame.FRect
@@ -42,8 +42,9 @@ class GamePlay(Scene):
         self.white_font = Msr(folders=(s.ASSETSPATH,), font="MonospaceTypewriter", size=20)
 
         self.grow_timer = 1
-        self.grow_seeds = [(-1, -1) for _ in range(4)]
+        self.grow_seeds = [(-1, -1) for _ in range(4)]  # number of growing points
 
+        # map grid creation
         bs = s.BLOCK_SIZE
         edge = s.EDGE
         dx = s.LOGICAL_SIZE_RECT.w // bs - edge * 2
@@ -110,8 +111,11 @@ class GamePlay(Scene):
                     self.player.score -= value
 
     def grow_map(self):
-
+        # I was cooking
         def grow():
+            """
+            adds a Cell to the edge of the map at a seed
+            """
             if self.map:
                 seed = random.randrange(len(self.grow_seeds))
                 if tuple(self.grow_seeds[seed]) in self.map:

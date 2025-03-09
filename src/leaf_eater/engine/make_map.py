@@ -4,9 +4,13 @@ import numpy as np
 
 
 # found on some website
-def perlin(m: int, n: int, gridsize=5) -> Any:
-    linx = np.linspace(0, gridsize, m, endpoint=False)
-    liny = np.linspace(0, gridsize, n, endpoint=False)
+def perlin(m: int, n: int, chunks=5) -> Any:
+    """
+    m, n = grid size
+    chunks = divides the grid up to chunk
+    """
+    linx = np.linspace(0, chunks, m, endpoint=False)
+    liny = np.linspace(0, chunks, n, endpoint=False)
     y, x = np.meshgrid(liny, linx)
     # permutation table
     p = np.arange(256, dtype=int)
@@ -39,7 +43,7 @@ def lerp(a: Any, b: Any, t: Any) -> Any:
 
 def fade(t: Any) -> Any:
     """6t^5 - 15t^4 + 10t^3"""
-    return 6 * t**5 - 15 * t**4 + 10 * t**3
+    return 6 * t**5 - 15 * t**4 + 10 * t**3  # probably black magic
 
 
 def gradient(h: Any, x: Any, y: Any) -> Any:

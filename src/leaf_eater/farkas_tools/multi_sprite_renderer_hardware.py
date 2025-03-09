@@ -10,7 +10,7 @@ from pygame._sdl2.video import Texture, Renderer
 
 def rotated_collision(rect1: (pygame.Rect, float), rect2: (pygame.Rect, float)):
     # input 2 rects with a rotations: [Rect, rot]
-    # draw or rests first 2 return elements can be used with another
+    # draw or rects first 2 return elements can be used with another
 
     rect1 = (pygame.Vector2(rect1[0].center), pygame.Vector2(rect1[0].topleft) - rect1[0].center), rect1[1]
     rect2 = (pygame.Vector2(rect2[0].center), pygame.Vector2(rect2[0].topleft) - rect2[0].center), rect2[1]
@@ -51,11 +51,11 @@ class MultiSprite:
         self.__init__(folders=folders, names=names, images=images, font=font, size=size, bold=bold, italic=italic, color=color, background=background, AA=AA)
 
     def __init__(self, folders=(), names=(), images=(), font=None, size=50, bold=False, italic=False, color='White', background=None, AA=False):
-        # renderer Surface
-        # file names come before images in indexing
-        # don't mix names and images with font
-        # alpha pre-set, can be modified to be cached
-
+        """
+        names will be loaded from folders(1 path)
+        images Surfaces. comes after namas in indexing
+        font will be loaded from folders(1 path). don't mix font with others
+        """
         self.sprites = {}
 
         for k, name in enumerate(names):
@@ -95,9 +95,12 @@ class MultiSprite:
                 self.sprites[char] = (texture, rect)
 
     def draw(self, name=0, scale=(1, 1), pos=(0, 0), relativeOffset=(-0.5, -0.5), offset=(0, 0), rotation=0, flip=(0, 0), alpha=1):
-        # name = sprite index in order, scale relative, pos = origin point
-        # offset relative shift from pos works with rotation, (-0.5, -0.5)=topleft, (0, 0)=center
-        # returns: rect of drawn sprite with rotation, fully encapsulating rect, if it was drawn
+        """
+        name = sprite index in order, scale relative, pos = origin point
+        relativeOffset = relative shift from pos works with rotation. (-0.5, -0.5)=topleft, (0, 0)=center
+        offset = fix point shift from pos works with rotation
+        returns: rect of drawn sprite, rotation, fully encapsulating rect, if it was drawn
+        """
 
         rect = MultiSprite.rect
         rect.size = self.sprites[name][1].size
@@ -131,6 +134,13 @@ class MultiSprite:
         return rect, rotation, absrect, rendered
 
     def rects(self, name=0, scale=(1, 1), pos=(0, 0), relativeOffset=(-0.5, -0.5), offset=(0, 0), rotation=0, **kwargs):
+        """
+        doesn't draw just returns rects
+        name = sprite index in order, scale relative, pos = origin point
+        relativeOffset = relative shift from pos works with rotation. (-0.5, -0.5)=topleft, (0, 0)=center
+        offset = fix point shift from pos works with rotation
+        returns: rect of drawn sprite, rotation, fully encapsulating rect, if it was drawn
+        """
 
         rect = pygame.Rect()  # MultiSprite.rect
         rect.size = self.sprites[name][1].size
@@ -148,7 +158,10 @@ class MultiSprite:
         return rect, rotation, absrect, MultiSprite.screenrect.colliderect(absrect)
 
     def draw_only(self, name=0, rects=None, flip=(0, 0), alpha=1, **kwargs):
-
+        """
+        name = sprite index in order
+        rects = output from draw or rects
+        """
         if rendered := MultiSprite.screenrect.colliderect(rects[2]) and alpha > 0:
             self.sprites[name][0].alpha = 255 * alpha
             self.sprites[name][0].draw(dstrect=rects[0], angle=-rects[1], origin=None, flip_x=flip[0], flip_y=flip[1])
@@ -163,9 +176,13 @@ class MultiSprite:
         self.sprites[char] = (texture, rect)
 
     def write(self, text='', scale=(1, 1), pos=(0, 0), relativeOffset=(-0.5, -0.5), align=1, rotation=0, flip=(0, 0), alpha=1):
-        # scaled from original given font size. pos = origin point
-        # rotation rotates whole text, flip applied to characters
-
+        """
+        scaled size from original given font size. pos = origin point
+        relativeOffset = relative shifts the imaginary box that hold the text
+        align = aligns the text in the imaginary box to the left(1), center(0), right(-1)
+        rotation rotates whole text, flip applied to characters
+        returns the width of the lines
+        """
         width = 0
         enter = 0
         lines = text.split('\n')
@@ -217,9 +234,14 @@ class MultiSprite:
         return linewidths
 
     def write_clamped(self, text='', width=1, scale=(1, 1), pos=(0, 0), relativeOffset=(-0.5, -0.5), align=1, rotation=0, flip=(0, 0), alpha=1):
-        # scaled from original given font size. pos = origin point
-        # rotation rotates whole text, flip applied to characters
-
+        """
+        wraps the text beyond max width to next line
+        scaled size from original given font size. pos = origin point
+        relativeOffset = relative shifts the imaginary box that hold the text
+        align = aligns the text in the imaginary box to the left(1), center(0), right(-1)
+        rotation rotates whole text, flip applied to characters
+        returns the width of the lines
+        """
         current_line = ""
         current_width = 0
         result = ""
