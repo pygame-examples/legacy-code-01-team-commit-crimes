@@ -18,7 +18,7 @@ class Game:
         pygame.init()
         self.fullscreen = fullscreen
         self.window: Window = Window(
-            title="Leaf Eater",
+            title="Infestation",
             size=s.WINDOW_SIZE,
             fullscreen=self.fullscreen,
             fullscreen_desktop=self.fullscreen,
