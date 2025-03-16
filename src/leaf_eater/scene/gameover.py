@@ -19,6 +19,12 @@ class GameOver(Scene):
         self.buttons = self.back_btn,
         Button.bridgelink(self.buttons, horisontal=False)
 
+        #Play gameover sound
+        pygame.mixer.music.stop()
+        
+        gameOverSound = pygame.mixer.Sound("assets/gameover.wav")
+        gameOverSound.play()
+
     def startup(self):
         Button.selectedB = self.back_btn
 
