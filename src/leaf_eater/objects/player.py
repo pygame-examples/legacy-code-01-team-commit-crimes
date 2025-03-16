@@ -17,6 +17,8 @@ class Player:
 
         self.projectiles = sprite.Group()
         self.shoot_timer = 1
+        self.shootSound = pygame.mixer.Sound("assets/shoot.wav")
+        self.shootSound.set_volume(0.25)
 
         self.angle: float = 0
         self.score: int = 0
@@ -94,6 +96,9 @@ class Player:
             self.shoot_timer += 0.15
 
             self.projectiles.add(Projectile(self.game, self.pos, damage=20, speed=400, punchthrough=20, lifetime=0.7))
+
+            #play shooting sound
+            self.shootSound.play()
 
     def draw(self) -> None:
         self.image_msr.draw(0, scale=(1, 1), pos=self.pos, relativeOffset=(0, 0), rotation=self.angle)
