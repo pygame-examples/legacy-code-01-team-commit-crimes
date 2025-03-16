@@ -22,6 +22,11 @@ class Intro(Scene):
         self.buttons = self.start_btn, self.quit_btn
         Button.bridgelink(self.buttons, horisontal=False)
 
+        #play theme music once
+        pygame.mixer.music.load("assets/themeWithFades.wav")
+        pygame.mixer.music.set_volume(0.5)
+        pygame.mixer.music.play(1)
+
     def startup(self):
         Button.selectedB = self.start_btn
 
@@ -40,7 +45,7 @@ class Intro(Scene):
             pygame.event.post(pygame.event.Event(pygame.QUIT))
 
     def render(self) -> None:
-        self.white_font.write("Game", scale=(2, 2), pos=(100, 150))
+        self.white_font.write("Infestation", scale=(2, 2), pos=(100, 150))
 
         box = self.start_btn.rects_only()[0]
         self.ui_button.draw(box)
