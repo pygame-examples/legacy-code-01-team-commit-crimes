@@ -17,6 +17,27 @@ from . import Scene
 
 Rect = pygame.Rect | pygame.FRect
 
+""" 
+Satisfying sound for destroying growth
+Bullets are a little weird
+Maybe "nectar beams", bombs?
+
+need a better UI, unique way to show health, or maybe "infestation level"
+
+Juice:
+screenshake
+idle animation up and down?
+make character rotate to face mouse?
+particles!
+
+ADD levels:
+varying levels of growth.. also higher level more "enemies"
+infested bugs that are trapped in growth, when destroyed they chase player.. perhaps different types/attacks.?
+(simple chase is ok I think they can travel through growth.. no need for pathfinding)
+
+player can get stuck "outside" the map.. maybe not an issue but probably the stuck part
+"""
+
 
 class Cell:
     def __init__(self, x, y, value):
@@ -36,6 +57,12 @@ class GamePlay(Scene):
     redirects: dict[str, type(Scene)] = {}  # "circular imports"
 
     def __init__(self):
+        #ambience or whatever
+        pygame.mixer.music.stop()
+
+        pygame.mixer.music.load("assets/gameplayTheme.wav")
+        pygame.mixer.music.play(-1)
+        
         self.dt = 0
         self.player: Player = Player(pygame.Vector2(10, 10), self)
         Projectile.image_msr(folders=(s.ASSETSPATH,), names=("projectile",))
@@ -88,6 +115,7 @@ class GamePlay(Scene):
 
         self.white_font.write(f"Health: {round(self.player.health)}", pos=(100, 10))
         self.white_font.write(f"Score: {self.player.score}", pos=(100, 30))
+        self.white_font.write(f"Level: 0", pos=(100, 50))
 
     def add_cell_to_map(self, x, y, value):
         if 0 <= x < self.map_size.x and 0 <= y < self.map_size.y:
