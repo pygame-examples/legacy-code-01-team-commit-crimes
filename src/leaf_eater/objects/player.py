@@ -20,7 +20,7 @@ class Player:
 
         self.angle: float = 0
         self.score: int = 0
-        self.speed = 150
+        self.speed = 300
         self.health = 100
 
         grid = [  # hitbox shape
@@ -60,29 +60,31 @@ class Player:
         m_left, _, _ = Button.mouse[1]
 
         # mouse control
-        vec_towards_mouse = mouse_pos - self.pos
-        vec_towards_mouse_normalized = vec_towards_mouse and vec_towards_mouse.normalize()
-        if vec_towards_mouse.length() > 5.0 and m_left:
-            self.angle = vec_towards_mouse.angle_to(pygame.Vector2(1, 0))
-            self.pos += vec_towards_mouse_normalized * self.speed * dt
+        # disabled mouse control, seemed awkward to have to shoot where you're flying towards
+        #    - if touchscreen is wanted I'm thinking auto shoot.
+##        vec_towards_mouse = mouse_pos - self.pos
+##        vec_towards_mouse_normalized = vec_towards_mouse and vec_towards_mouse.normalize()
+##        if vec_towards_mouse.length() > 5.0 and m_left:
+##            self.angle = vec_towards_mouse.angle_to(pygame.Vector2(1, 0))
+##            self.pos += vec_towards_mouse_normalized * self.speed * dt
 
-        else:  # keyboard control
-            key = settings.CONTROLS
-            vec = pygame.Vector2(0, 0)
+##        else:  # keyboard control
+        key = settings.CONTROLS
+        vec = pygame.Vector2(0, 0)
 
-            if Button.keys((key["Up"],))[1]:
-                vec.y += -1
-            if Button.keys((key["Down"],))[1]:
-                vec.y += 1
-            if Button.keys((key["Left"],))[1]:
-                vec.x += -1
-            if Button.keys((key["Right"],))[1]:
-                vec.x += 1
+        if Button.keys((key["W"],key["Up"]))[1]:
+            vec.y += -2
+        if Button.keys((key["S"],key["Down"]))[1]:
+            vec.y += 2
+        if Button.keys((key["A"],key["Left"]))[1]:
+            vec.x += -2
+        if Button.keys((key["D"],key["Right"]))[1]:
+            vec.x += 2
 
-            if vec:
-                vec.normalize_ip()
-                self.angle = vec.angle_to(pygame.Vector2(1, 0))
-                self.pos += vec * self.speed * dt
+        if vec:
+            vec.normalize_ip()
+            self.angle = vec.angle_to(pygame.Vector2(1, 0))
+            self.pos += vec * self.speed * dt
 
         hit = self.game.handle_player_collisions()
         self.health -= bool(hit)*dt*15

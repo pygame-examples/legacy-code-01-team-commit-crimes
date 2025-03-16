@@ -15,10 +15,14 @@ RENDERER: Renderer
 EDGE: int = 3
 BLOCK_SIZE: int = 8
 
-CONTROLS = {'Up': pygame.K_w,
-            'Down': pygame.K_s,
-            'Left': pygame.K_a,
-            'Right': pygame.K_d,
+CONTROLS = {'W': pygame.K_w,
+            'S': pygame.K_s,
+            'A': pygame.K_a,
+            'D': pygame.K_d,
+            'Up': pygame.K_UP,
+            'Down': pygame.K_DOWN,
+            'Left': pygame.K_LEFT,
+            'Right': pygame.K_RIGHT,
             'Ok': pygame.K_SPACE,
             'Esc': pygame.K_ESCAPE,
             }
