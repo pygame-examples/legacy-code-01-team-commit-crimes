@@ -1,17 +1,19 @@
 import heapq
 import math
+
 # from collections import defaultdict
 # typing import Protocol, runtime_checkable
 import random
 
 import pygame
-from ..farkas_tools.multi_sprite_renderer_hardware import MultiSprite as Msr
-from ..farkas_tools.buttons import Button
 
-
-from ..engine import events, settings as s
+from ..engine import events
+from ..engine import settings as s
 from ..engine.make_map import get_blocks2
+from ..farkas_tools.buttons import Button
+from ..farkas_tools.multi_sprite_renderer_hardware import MultiSprite as Msr
 from ..objects.player import Player, Projectile
+
 # from ..objects.ui import Text
 from . import Scene
 
@@ -47,26 +49,31 @@ class Cell:
         self.value = value
 
     def draw(self):
-        c = pygame.Color.from_hsva(pygame.math.clamp(self.value, 0, 299) + 60, 100, 100, 0)
+        c = pygame.Color.from_hsva(
+            pygame.math.clamp(self.value, 0, 299) + 60, 100, 100, 0
+        )
         s.RENDERER.draw_color = c
         s.RENDERER.fill_rect(self.rect)
 
 
 class GamePlay(Scene):
     """Main game code"""
-    redirects: dict[str, type(Scene)] = {}  # "circular imports"
+
+    redirects: dict[str, type[Scene]] = {}  # "circular imports"
 
     def __init__(self):
-        #ambience or whatever
+        # ambience or whatever
         pygame.mixer.music.stop()
 
         pygame.mixer.music.load("assets/gameplayTheme.wav")
         pygame.mixer.music.play(-1)
-        
+
         self.dt = 0
         self.player: Player = Player(pygame.Vector2(10, 10), self)
         Projectile.image_msr(folders=(s.ASSETSPATH,), names=("projectile",))
-        self.white_font = Msr(folders=(s.ASSETSPATH,), font="MonospaceTypewriter", size=20)
+        self.white_font = Msr(
+            folders=(s.ASSETSPATH,), font="MonospaceTypewriter", size=20
+        )
 
         self.grow_timer = 1
         self.grow_seeds = [(-1, -1) for _ in range(4)]  # number of growing points
@@ -101,10 +108,14 @@ class GamePlay(Scene):
         self.player.projectiles.update(dt)
 
         if Button.keys((s.CONTROLS["Esc"],))[0]:
-            pygame.event.post(pygame.event.Event(events.SET_SCREEN, screen=self.redirects["intro"]))
+            pygame.event.post(
+                pygame.event.Event(events.SET_SCREEN, screen=self.redirects["intro"])
+            )
 
         if self.player.health <= 0:
-            pygame.event.post(pygame.event.Event(events.SET_SCREEN, screen=self.redirects["over"]))
+            pygame.event.post(
+                pygame.event.Event(events.SET_SCREEN, screen=self.redirects["over"])
+            )
 
     def render(self) -> None:
         for cell in self.map.values():
@@ -151,7 +162,18 @@ class GamePlay(Scene):
                 else:
                     origin = random.choice(tuple(self.map.values())).pos // s.BLOCK_SIZE
 
-                direction = random.choice(((0, 1), (1, 0), (0, -1), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)))
+                direction = random.choice(
+                    (
+                        (0, 1),
+                        (1, 0),
+                        (0, -1),
+                        (-1, 0),
+                        (1, 1),
+                        (1, -1),
+                        (-1, 1),
+                        (-1, -1),
+                    )
+                )
                 value = 0
                 pos = self.grow_seeds[seed]
                 while tuple(origin) in self.map:
@@ -165,7 +187,7 @@ class GamePlay(Scene):
         self.grow_timer -= self.dt
         if self.grow_timer <= 0 and self.map:
             while self.grow_timer <= 0:
-                self.grow_timer += (len(self.map)/150000)
+                self.grow_timer += len(self.map) / 150000
                 grow()
 
     @staticmethod
@@ -185,10 +207,14 @@ class GamePlay(Scene):
             return False
         return rect.colliderect(self.map[grid_pos].rect)
 
-    def mask_collides_at_grid_pos(self, rect: Rect, mask: pygame.Mask, grid_pos: tuple[int, int]) -> bool:
+    def mask_collides_at_grid_pos(
+        self, rect: Rect, mask: pygame.Mask, grid_pos: tuple[int, int]
+    ) -> bool:
         if grid_pos not in self.map:
             return False
-        return bool(self.map[grid_pos].mask.overlap(mask, rect.topleft - self.map[grid_pos].pos))
+        return bool(
+            self.map[grid_pos].mask.overlap(mask, rect.topleft - self.map[grid_pos].pos)
+        )
 
     def rect_collides_any(self, rect: Rect) -> bool:
         for grid_pos in self.get_colliding_cells(rect):
@@ -217,7 +243,9 @@ class GamePlay(Scene):
         # if not self.rect_collides_any(rect):
         #     return
 
-        displacements: list[tuple[int, int, int]] = [(0, 0, 0)]  # dist_squared, displacement_x, displacement_y
+        displacements: list[tuple[int, int, int]] = [
+            (0, 0, 0)
+        ]  # dist_squared, displacement_x, displacement_y
         seen_displacements = {(0, 0)}
 
         while True:

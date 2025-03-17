@@ -3,7 +3,8 @@ import pygame
 
 class Scene:
     """Base Screen class"""
-    redirects: dict[str, type(None)]  # "circular imports"
+
+    redirects: dict[str, type[None]]  # "circular imports"
 
     def startup(self):
         pass
