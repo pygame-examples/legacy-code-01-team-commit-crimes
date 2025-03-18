@@ -15,7 +15,7 @@ class GameOver(Scene):
 
     def __init__(self):
         self.white_font = Msr(
-            folders=(s.ASSETSPATH,), font="MonospaceTypewriter", size=40
+            folders=(s.ASSETSPATH,), font="MonospaceTypewriter", font_size=40
         )
         self.ui_button = UIblock(
             Msr((s.ASSETSPATH,), names=("ui_button",)),

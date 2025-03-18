@@ -1,9 +1,12 @@
+import math
+
 import pygame
 from pygame import sprite
 
 from ..engine import settings
-from ..farkas_tools.multi_sprite_renderer_hardware import MultiSprite as Msr
 from ..farkas_tools.buttons import Button
+from ..farkas_tools.multi_sprite_renderer_hardware import MultiSprite as Msr
+from ..utils import create_fading_circle
 
 
 class Player:
@@ -12,7 +15,13 @@ class Player:
         self.game = game  # Gameplay scene
 
         image: pygame.Surface = pygame.image.load("assets/bug_alpha.png")
-        self.base_image = pygame.transform.scale(pygame.transform.rotate(image, -90), (64, 64))
+        self.base_image = pygame.transform.scale(
+            pygame.transform.rotate(image, -90), (64, 64)
+        )
+        self.base_image.blit(
+            create_fading_circle(32, intensity=1.4),
+            special_flags=pygame.BLEND_RGBA_MULT,
+        )
         self.image_msr = Msr(images=(self.base_image,))
 
         self.projectiles = sprite.Group()
@@ -22,7 +31,7 @@ class Player:
 
         self.angle: float = 0
         self.score: int = 0
-        self.speed = 300
+        self.speed = 200
         self.health = 100
 
         grid = [  # hitbox shape
@@ -54,7 +63,6 @@ class Player:
     def collide_rect(self) -> pygame.FRect:
         return self.base_image.get_frect(center=self.pos)
 
-
     def process_event(self, event: pygame.Event) -> None: ...
 
     def update(self, dt):
@@ -64,49 +72,53 @@ class Player:
         # mouse control
         # disabled mouse control, seemed awkward to have to shoot where you're flying towards
         #    - if touchscreen is wanted I'm thinking auto shoot.
-##        vec_towards_mouse = mouse_pos - self.pos
-##        vec_towards_mouse_normalized = vec_towards_mouse and vec_towards_mouse.normalize()
-##        if vec_towards_mouse.length() > 5.0 and m_left:
-##            self.angle = vec_towards_mouse.angle_to(pygame.Vector2(1, 0))
-##            self.pos += vec_towards_mouse_normalized * self.speed * dt
+        # vec_towards_mouse = mouse_pos - self.pos
+        # vec_towards_mouse_normalized = vec_towards_mouse and vec_towards_mouse.normalize()
+        # if vec_towards_mouse.length() > 5.0 and m_left:
+        #     self.angle = vec_towards_mouse.angle_to(pygame.Vector2(1, 0))
+        #     self.pos += vec_towards_mouse_normalized * self.speed * dt
 
-##        else:  # keyboard control
-        key = settings.CONTROLS
+        ##        else:  # keyboard control
         vec = pygame.Vector2(0, 0)
 
-        if Button.keys((key["W"],key["Up"]))[1]:
-            vec.y += -2
-        if Button.keys((key["S"],key["Down"]))[1]:
-            vec.y += 2
-        if Button.keys((key["A"],key["Left"]))[1]:
-            vec.x += -2
-        if Button.keys((key["D"],key["Right"]))[1]:
-            vec.x += 2
+        rad = math.atan2(mouse_pos[1] - self.pos.y, mouse_pos[0] - self.pos.x)
+        self.angle = -math.degrees(rad)
+        vec.x = math.cos(rad)
+        vec.y = math.sin(rad)
 
-        if vec:
-            vec.normalize_ip()
-            self.angle = vec.angle_to(pygame.Vector2(1, 0))
-            self.pos += vec * self.speed * dt
+        self.pos += vec * self.speed * dt
 
         hit = self.game.handle_player_collisions()
-        self.health -= bool(hit)*dt*15
+        self.health -= bool(hit) * dt * 1
 
         self.shoot_timer -= dt
         if self.shoot_timer <= 0:
-            self.shoot_timer += 0.15
+            self.shoot_timer += 0.1
 
-            self.projectiles.add(Projectile(self.game, self.pos, damage=20, speed=400, punchthrough=20, lifetime=0.7))
+            self.projectiles.add(
+                Projectile(
+                    self.game,
+                    self.pos,
+                    damage=20,
+                    speed=800,
+                    punchthrough=50,
+                    lifetime=1.5,
+                )
+            )
 
-            #play shooting sound
+            # play shooting sound
             self.shootSound.play()
 
     def draw(self) -> None:
-        self.image_msr.draw(0, scale=(1, 1), pos=self.pos, relativeOffset=(0, 0), rotation=self.angle)
+        self.image_msr.draw(
+            0, scale=(1, 1), pos=self.pos, relativeOffset=(0, 0), rotation=self.angle
+        )
 
 
 class Projectile(sprite.Sprite):
     image_msr = Msr()
-    def __init__(self,game, pos, damage, speed, punchthrough, lifetime):
+
+    def __init__(self, game, pos, damage, speed, punchthrough, lifetime):
         super().__init__()
         self.game = game
         self.pos = pos.copy()
@@ -117,9 +129,19 @@ class Projectile(sprite.Sprite):
 
         self.scale = 2
 
-        self.direction = direction.normalize() if (direction:=(-self.pos + Button.mousepos[1])) else pygame.Vector2(1, 0)
+        self.direction = (
+            direction.normalize()
+            if (direction := (-self.pos + Button.mousepos[1]))
+            else pygame.Vector2(1, 0)
+        )
         self.rotation = self.direction.angle_to(pygame.Vector2(1, 0))
-        self.rects = Projectile.image_msr.rects(0, scale=(self.scale, self.scale), pos=self.pos, relativeOffset=(0, 0), rotation=self.rotation)
+        self.rects = Projectile.image_msr.rects(
+            0,
+            scale=(self.scale, self.scale),
+            pos=self.pos,
+            relativeOffset=(0, 0),
+            rotation=self.rotation,
+        )
 
     def update(self, mode):
         # this is why we cant have nice things
@@ -132,7 +154,13 @@ class Projectile(sprite.Sprite):
     def loop(self, dt):
         self.pos += self.direction * self.speed * dt
 
-        self.rects = Projectile.image_msr.rects(0, scale=(self.scale, self.scale), pos=self.pos, relativeOffset=(0, 0), rotation=self.rotation)
+        self.rects = Projectile.image_msr.rects(
+            0,
+            scale=(self.scale, self.scale),
+            pos=self.pos,
+            relativeOffset=(0, 0),
+            rotation=self.rotation,
+        )
 
         self.hit()
 

@@ -6,6 +6,7 @@ import math
 import random
 
 import pygame
+from pygame._sdl2.video import Texture
 
 from ..engine import events
 from ..engine import settings as s
@@ -18,27 +19,6 @@ from ..objects.player import Player, Projectile
 from . import Scene
 
 Rect = pygame.Rect | pygame.FRect
-
-""" 
-Satisfying sound for destroying growth
-Bullets are a little weird
-Maybe "nectar beams", bombs?
-
-need a better UI, unique way to show health, or maybe "infestation level"
-
-Juice:
-screenshake
-idle animation up and down?
-make character rotate to face mouse?
-particles!
-
-ADD levels:
-varying levels of growth.. also higher level more "enemies"
-infested bugs that are trapped in growth, when destroyed they chase player.. perhaps different types/attacks.?
-(simple chase is ok I think they can travel through growth.. no need for pathfinding)
-
-player can get stuck "outside" the map.. maybe not an issue but probably the stuck part
-"""
 
 
 class Cell:
@@ -70,13 +50,27 @@ class GamePlay(Scene):
 
         self.dt = 0
         self.player: Player = Player(pygame.Vector2(10, 10), self)
-        Projectile.image_msr(folders=(s.ASSETSPATH,), names=("projectile",))
+        Projectile.image_msr(
+            images=(
+                pygame.transform.rotate(
+                    pygame.transform.scale(
+                        pygame.image.load("assets/proj2.png"), (10, 10)
+                    ),
+                    -90,
+                ),
+            )
+        )
         self.white_font = Msr(
-            folders=(s.ASSETSPATH,), font="MonospaceTypewriter", size=20
+            folders=(s.ASSETSPATH,), font="MonospaceTypewriter", font_size=20
         )
 
         self.grow_timer = 1
         self.grow_seeds = [(-1, -1) for _ in range(4)]  # number of growing points
+
+        temp = pygame.Surface(s.WINDOW.size, pygame.SRCALPHA)
+        temp.fill("black")
+        temp.set_alpha(200)
+        self.overlay = Texture.from_surface(s.RENDERER, temp)
 
         # map grid creation
         bs = s.BLOCK_SIZE
@@ -121,8 +115,10 @@ class GamePlay(Scene):
         for cell in self.map.values():
             cell.draw()
 
-        self.player.draw()
+        s.RENDERER.blit(self.overlay, pygame.Rect(0, 0, *s.WINDOW_SIZE))
+
         self.player.projectiles.update("draw")
+        self.player.draw()
 
         self.white_font.write(f"Health: {round(self.player.health)}", pos=(100, 10))
         self.white_font.write(f"Score: {self.player.score}", pos=(100, 30))
@@ -184,11 +180,11 @@ class GamePlay(Scene):
                 self.grow_seeds[seed] = pos // s.BLOCK_SIZE
                 self.add_cell_to_map(*origin, value)
 
-        self.grow_timer -= self.dt
-        if self.grow_timer <= 0 and self.map:
-            while self.grow_timer <= 0:
-                self.grow_timer += len(self.map) / 150000
-                grow()
+        # self.grow_timer -= self.dt
+        # if self.grow_timer <= 0 and self.map:
+        #     self.grow_timer += 0.1
+        for _ in range(10):
+            grow()
 
     @staticmethod
     def get_colliding_cells(rect: Rect):
@@ -237,6 +233,7 @@ class GamePlay(Scene):
         return True
 
     def handle_player_collisions(self):
+        return 0, 0
         rect = self.player.collide_rect
         mask = self.player.mask
 

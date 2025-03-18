@@ -9,7 +9,9 @@ import pygame
 from pygame._sdl2.video import Renderer, Texture
 
 
-def rotated_collision(rect1: (pygame.Rect, float), rect2: (pygame.Rect, float)):
+def rotated_collision(
+    rect1: tuple[pygame.Rect, float], rect2: tuple[pygame.Rect, float]
+):
     # input 2 rects with a rotations: [Rect, rot]
     # draw or rects first 2 return elements can be used with another
 
@@ -80,7 +82,7 @@ class MultiSprite:
             names=names,
             images=images,
             font=font,
-            size=size,
+            font_size=size,
             bold=bold,
             italic=italic,
             color=color,
@@ -94,7 +96,7 @@ class MultiSprite:
         names=(),
         images=(),
         font=None,
-        size=50,
+        font_size=50,
         bold=False,
         italic=False,
         color="White",
@@ -126,13 +128,13 @@ class MultiSprite:
             self.sprites[k + num] = (texture, rect)
 
         if not names and not images and font:
-            self.size = size
+            self.size = font_size
             self.bold = bold
             self.italic = italic
             self.color = color
             self.background = background
             self.AA = AA
-            self.font = pygame.font.Font(join(*folders, font + ".ttf"), size)
+            self.font = pygame.font.Font(join(*folders, font + ".ttf"), font_size)
             self.font.set_bold(bold)
             self.font.set_italic(italic)
 

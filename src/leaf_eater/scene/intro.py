@@ -1,28 +1,46 @@
 import pygame
 
-from ..engine import events, settings as s
+from ..engine import events
+from ..engine import settings as s
+from ..farkas_tools.buttons import Button
+from ..farkas_tools.multi_sprite_renderer_hardware import MultiSprite as Msr
+from ..farkas_tools.UIblock import UIblock
 from ..objects.ui import Text
 from . import GamePlay, Scene
-from ..farkas_tools.multi_sprite_renderer_hardware import MultiSprite as Msr
-from ..farkas_tools.buttons import Button
-from ..farkas_tools.UIblock import UIblock
-
-
 
 
 class Intro(Scene):
     """Intro Screen"""
 
     def __init__(self):
-        self.white_font = Msr(folders=(s.ASSETSPATH,), font="MonospaceTypewriter", size=40)
-        self.ui_button = UIblock(Msr((s.ASSETSPATH,), names=("ui_button",)), (5, 7), (5, 7), 0, True, scale=(2, 2))
+        self.white_font = Msr(
+            folders=(s.ASSETSPATH,), font="MonospaceTypewriter", font_size=40
+        )
+        self.ui_button = UIblock(
+            Msr((s.ASSETSPATH,), names=("ui_button",)),
+            (5, 7),
+            (5, 7),
+            0,
+            True,
+            scale=(2, 2),
+        )
 
-        self.start_btn = Button(Msr((s.ASSETSPATH,), names=("placeholder",)), scale=(1.6, 0.5), pos=(120, 350), popup=(1.1, 1.1))
-        self.quit_btn = Button(Msr((s.ASSETSPATH,), names=("placeholder",)), scale=(1.6, 0.5), pos=(120, 430), popup=(1.1, 1.1))
+        self.start_btn = Button(
+            Msr((s.ASSETSPATH,), names=("placeholder",)),
+            scale=(1.6, 0.5),
+            pos=(120, 350),
+            popup=(1.1, 1.1),
+        )
+        self.quit_btn = Button(
+            Msr((s.ASSETSPATH,), names=("placeholder",)),
+            scale=(1.6, 0.5),
+            pos=(120, 430),
+            popup=(1.1, 1.1),
+        )
         self.buttons = self.start_btn, self.quit_btn
         Button.bridgelink(self.buttons, horisontal=False)
 
-        #play theme music once
+        # play theme music once
         pygame.mixer.music.load("assets/themeWithFades.wav")
         pygame.mixer.music.set_volume(0.5)
         pygame.mixer.music.play(1)
